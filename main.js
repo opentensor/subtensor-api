@@ -111,6 +111,7 @@ async function refreshMeta(api) {
             priority: BigInt(neuron.priority).toString(),
             version: (neuron.version).toNumber(),
             modality: (neuron.modality).toNumber(),
+            active: (neuron.active).toNumber(),
             ip: (neuron.ip).toString(),
             ip_type: (neuron.ipType).toNumber(),
             port: (neuron.port).toNumber(),
