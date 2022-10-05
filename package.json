@@ -24,6 +24,7 @@
     "babelify": "^10.0.0",
     "browserify": "^17.0.0",
     "esmify": "^2.1.1",
+    "pkg": "^5.8.0",
     "webpack": "^5.74.0",
     "webpack-cli": "^4.10.0"
   }
