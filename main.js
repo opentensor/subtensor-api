@@ -89,14 +89,18 @@ async function refreshMeta(api) {
 
     let _neurons = [];
     const numPages = 16;
-    const pageSize = Math.ceil(numNeurons / numPages);
-
+    let pageSize = Math.ceil(numNeurons / numPages);
+    const last_page_length = numNeurons % pageSize;
     for (let page = 0; page < numPages; page++) {
-    const result = await getNeurons(api, page, pageSize)
+        if (page === numPages - 1) {
+            // if last page, use the last_page_length
+            pageSize = last_page_length;
+        }
+        const result = await getNeurons(api, page, pageSize)
     let neurons_ = result.map((result, j) => {
         const indexStart = page * pageSize;
         const neuron = result.value;
-        
+        console.log(indexStart + j);
         return {
             hotkey: (neuron.hotkey).toString(),
             coldkey: (neuron.coldkey).toString(),
