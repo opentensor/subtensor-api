@@ -94,7 +94,10 @@ async function refreshMeta(api) {
     for (let page = 0; page < numPages; page++) {
         if (page === numPages - 1) {
             // if last page, use the last_page_length
-            pageSize = last_page_length;
+            if (last_page_length > 0) {
+                // if last_page_length is 0, then the last page is a full page
+                pageSize = last_page_length; 
+            }
         }
         const result = await getNeurons(api, page, pageSize)
     let neurons_ = result.map((result, j) => {
