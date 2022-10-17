@@ -181,7 +181,7 @@ async function get_block_at_registration(api) {
         }
         const result = await blockAtRegistration(api, page, pageSize)
     let blockAtRegistrationAll_ = result.map((result, j) => {
-        return (result).toNumber();
+        return BigInt(result).toString(); // block number are u64 so we need to convert to string for JSON
     });
     _blockAtRegistrationAll = _blockAtRegistrationAll.concat(blockAtRegistrationAll_);
     }
