@@ -15,8 +15,8 @@ def verify_binary_exists() -> None:
 def get_path_to_fast_sync() -> str:
     """Returns the path to the fast sync binary"""
     os_name: str = "linux"
-    #relative_path = f"../../../bin/subtensor-node-api-{os_name.value}"
-    relative_path = f"./subtensor-node-api-{os_name}"
+    relative_path = f"../bin/subtensor-node-api-{os_name}"
+    #relative_path = f"./subtensor-node-api-{os_name}"
     path_to_bin = os.path.join(os.path.dirname(__file__), relative_path)
     return path_to_bin
 
