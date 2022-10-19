@@ -1,0 +1,7 @@
+setuptools
+
+# test runner
+pytest==6.2.0
+pytest-cov==2.8.1
+
+codecov==2.1.3
