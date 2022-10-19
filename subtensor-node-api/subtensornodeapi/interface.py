@@ -11,11 +11,13 @@ def verify_binary_exists() -> None:
     if not os.path.exists(path_to_bin) or not os.path.isfile(path_to_bin):
         raise Exception("Could not find fast sync binary at {}.".format(path_to_bin))
 
+
 def get_path_to_fast_sync() -> str:
     """Returns the path to the fast sync binary"""
     os_name: str = "linux"
     path_to_bin = os.path.join(os.path.dirname(__file__), f"../../../bin/subtensor-node-api-{os_name.value}")
     return path_to_bin
+
 
 def run_sync_and_save(filename: str) -> None:
     endpoint_url = ""
