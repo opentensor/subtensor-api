@@ -36,7 +36,6 @@ elif platform == "darwin":
     package_data['subtensorapi'].append('subtensor-node-api-macos')
 else: # e.g. platform == None
     # neither linux or macos
-    # include neither binaries
-    pass
+    raise Exception("Unsupported platform: {}".format(platform))
 
 setup()
