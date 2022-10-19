@@ -1,1 +1,1 @@
-python3 -m subtensornodeapi sync_and_save -f "./test.json"
+python3 -m subtensornodeapi "./test.json"
