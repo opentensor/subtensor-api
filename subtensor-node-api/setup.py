@@ -54,7 +54,7 @@ else: # e.g. platform == None
 
 setup(
     name='subtensornodeapi',
-    version="0.0.1",
+    version="0.1.0", # TODO: read from VERSION
     description='subtensor-node-api for bittensor',
     long_description_content_type='text/markdown',
     url='https://github.com/opentensor/subtensor-node-api',
