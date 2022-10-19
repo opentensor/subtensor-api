@@ -4,18 +4,34 @@ To build executables for linux and macos, run `yarn run build`
 
 ## Usage
 First you build the binary with `yarn build`  
-Then, you can run using the binary (replace `{}` with your OS)
+Then, you can run using the binary (replace `{}` with your OS)  
 `./subtensor-node-api-{macos,linux} [sync_and_save|get_block_at_registration_for_all_and_save]`  
 ### sync_and_save
-`./subtensor-node-api-{macos,linux} sync_and_save`
-This will pull the latest metagraph/neuron data from the chain and write it to a JSON file (default: `~/.bittensor/metagraph.json`) in the [below format](#neuron-structure).  
-You can specify the output filename like so:  `./subtensor-node-api-{macos,linux} sync_and_save --filename <foo.json>`  
-You can specify the subtensor endpoint like so: `./subtensor-node-api-{macos,linux} sync_and_save -u <wss://examplendpoint:9944>`  
+`./subtensor-node-api-{macos,linux} sync_and_save`  
+This will pull the latest metagraph/neuron data from the chain and write it to a JSON file  
+(default: `~/.bittensor/metagraph.json`) in the [below format](#neuron-structure).  
+
+You can specify the output filename like so:  
+`./subtensor-node-api-{macos,linux} sync_and_save --filename <foo.json>`    
+
+You can specify the subtensor endpoint like so:  
+`./subtensor-node-api-{macos,linux} sync_and_save --url <wss://examplendpoint:9944>`   
+
+You can specify the blockhash to sync at like so:  
+`./subtensor-node-api-{macos,linux} sync_and_save --blockHash <0xsomeblockhash>`     
 ### get_block_at_registration_for_all_and_save
-`./subtensor-node-api-{macos,linux} get_block_at_registration_for_all_and_save`
-This will pull the latest storage map for `blockAtRegistration` for all UIDs from the chain and write it to a JSON file (default: `~/.bittensor/blockAtRegistration_all.json`) in the [below format](#blockatregistration-structure).  
-You can specify the output filename like so:  `./subtensor-node-api-{macos,linux} get_block_at_registration_for_all_and_save --filename <foo.json>`  
-You can specify the subtensor endpoint like so: `./subtensor-node-api-{macos,linux} get_block_at_registration_for_all_and_save -u <wss://examplendpoint:9944>`    
+`./subtensor-node-api-{macos,linux} get_block_at_registration_for_all_and_save`  
+This will pull the latest storage map for `blockAtRegistration` for all UIDs from the chain and write it to a JSON file  
+(default: `~/.bittensor/blockAtRegistration_all.json`) in the [below format](#blockatregistration-structure).    
+
+You can specify the output filename like so:   
+`./subtensor-node-api-{macos,linux} get_block_at_registration_for_all_and_save --filename <foo.json>`    
+
+You can specify the subtensor endpoint like so:  
+`./subtensor-node-api-{macos,linux} get_block_at_registration_for_all_and_save -url <wss://examplendpoint:9944>`     
+
+You can specify the blockhash to sync at like so:   
+`./subtensor-node-api-{macos,linux} sync_and_save --blockHash <0xsomeblockhash>`      
 
 ## Neuron Structure
 The NeuronData from `sync_and_save` will be saved into the JSON file as an array with the following types:
