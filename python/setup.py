@@ -19,10 +19,10 @@ import os
 import sys
 from typing import Optional
 
-from setuptools import setup, find_packages
+from setuptools import setup
 
 package_data = {
-    'subtensornodeapi': []
+    'subtensorapi': []
 }
 
 platform: Optional[str] = os.environ.get('BT_BUILD_TARGET') or sys.platform
@@ -30,10 +30,10 @@ platform: Optional[str] = os.environ.get('BT_BUILD_TARGET') or sys.platform
 # Check platform and remove unsupported subtensor node api binaries.
 if platform == "linux" or platform == "linux2":
     # linux
-    package_data['subtensornodeapi'].append('subtensor-node-api-linux')
+    package_data['subtensorapi'].append('subtensor-node-api-linux')
 elif platform == "darwin":
     # OS X
-    package_data['subtensornodeapi'].append('subtensor-node-api-macos')
+    package_data['subtensorapi'].append('subtensor-node-api-macos')
 else: # e.g. platform == None
     # neither linux or macos
     # include neither binaries
