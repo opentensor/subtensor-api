@@ -7,7 +7,8 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "build": "npx webpack && cp dist_/package.json dist/ && npx pkg dist --targets linux,macos"
+    "build": "npx webpack && cp dist_/package.json dist/ && npx pkg dist --targets linux,macos",
+    "test": "npx mocha"
   },
   "dependencies": {
     "@polkadot/api": "^9.4.2",
@@ -23,7 +24,9 @@
     "@babel/preset-env": "^7.19.3",
     "babelify": "^10.0.0",
     "browserify": "^17.0.0",
+    "chai": "^4.3.6",
     "esmify": "^2.1.1",
+    "mocha": "^10.0.0",
     "pkg": "^5.8.0",
     "webpack": "^5.74.0",
     "webpack-cli": "^4.10.0"
