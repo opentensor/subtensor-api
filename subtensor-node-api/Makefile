@@ -8,4 +8,4 @@ clean:
 	rm -rf build .pytest_cache dist google_drive.egg-info
 
 test-package:
-	python3 -m subtensornodeapi "./test.json"
+	subtensor-node-api test "./test.json"

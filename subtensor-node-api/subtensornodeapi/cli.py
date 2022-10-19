@@ -1,17 +1,18 @@
 import sys
 import click
 
-from interface import verify_binary_exists, run_sync_and_save
+from subtensornodeapi.interface import verify_binary_exists, run_sync_and_save
 
 @click.command()
-def test():
+@click.argument('path')
+def test(path):
     """Test package"""
     verify_binary_exists()
-    run_sync_and_save(sys.argv[1]) # pass file name
+    run_sync_and_save(path) # pass file name
 
 
 @click.group()
 def subtensornodeapi():
     pass
 
-googledrive.add_command(test)
+subtensornodeapi.add_command(test)

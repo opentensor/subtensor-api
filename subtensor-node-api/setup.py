@@ -75,5 +75,8 @@ setup(
         'tao',
         'bittensor',
     ],
-    python_requires='>=3.7'
+    python_requires='>=3.7',
+    entry_points={
+        'console_scripts': ['subtensor-node-api = subtensornodeapi.cli:subtensornodeapi'],
+    },
 )
