@@ -16,17 +16,13 @@
 # DEALINGS IN THE SOFTWARE.
 
 import os
-import re
 import sys
-from io import open
-from os import path
 from typing import Optional
 
-from pkg_resources import parse_requirements
 from setuptools import setup, find_packages
 
 package_data = {
-    'bittensor': []
+    'subtensornodeapi': []
 }
 
 platform: Optional[str] = os.environ.get('BT_BUILD_TARGET') or sys.platform
@@ -34,54 +30,33 @@ platform: Optional[str] = os.environ.get('BT_BUILD_TARGET') or sys.platform
 # Check platform and remove unsupported subtensor node api binaries.
 if platform == "linux" or platform == "linux2":
     # linux
-    package_data['bittensor'].append('subtensor-node-api-linux')
+    package_data['subtensornodeapi'].append('subtensor-node-api-linux')
 elif platform == "darwin":
     # OS X
-    package_data['bittensor'].append('subtensor-node-api-macos')
+    package_data['subtensornodeapi'].append('subtensor-node-api-macos')
 else: # e.g. platform == None
     # neither linux or macos
     # include neither binaries
     pass
 
 setup(
-    name='bittensor',
-    version=version_string,
-    description='bittensor',
-    long_description=long_description,
+    name='subtensornodeapi',
+    version="0.0.1",
+    description='subtensornodeapi for bittensor',
     long_description_content_type='text/markdown',
-    url='https://github.com/opentensor/bittensor',
+    url='https://github.com/opentensor/subtensor-node-api',
     author='bittensor.com',
     packages=find_packages(),
     include_package_data=True,
     author_email='',
     license='MIT',
-    install_requires=install_requires,
-    scripts=['bin/btcli', 'bin/subtensor-node-api-linux'],
-    #package_data=package_data,
-    classifiers=[
-        'Development Status :: 3 - Alpha',
-        'Intended Audience :: Developers',
-        'Topic :: Software Development :: Build Tools',
-
-        # Pick your license as you wish
-        'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10',
-        'Topic :: Scientific/Engineering',
-        'Topic :: Scientific/Engineering :: Mathematics',
-        'Topic :: Scientific/Engineering :: Artificial Intelligence',
-        'Topic :: Software Development',
-        'Topic :: Software Development :: Libraries',
-        'Topic :: Software Development :: Libraries :: Python Modules',
-    ],
     keywords=[
         'nlp',
         'crypto',
         'machine learning',
         'ml',
-        'tao'
+        'tao',
+        'bittensor',
     ],
     python_requires='>=3.7'
 )
