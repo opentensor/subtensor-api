@@ -14,7 +14,7 @@ def verify_binary_exists() -> None:
 def get_path_to_fast_sync() -> str:
     """Returns the path to the fast sync binary"""
     os_name: str = "linux"
-    path_to_bin = os.path.join(os.path.dirname(__file__), f"../../../bin/subtensor-node-api-{os_name}")
+    path_to_bin = os.path.join(os.path.dirname(__file__), f"./subtensor-node-api-{os_name}")
     return path_to_bin
 
 def run_sync_and_save(filename: str) -> None:
