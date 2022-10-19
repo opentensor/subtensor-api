@@ -39,24 +39,4 @@ else: # e.g. platform == None
     # include neither binaries
     pass
 
-setup(
-    name='subtensornodeapi',
-    version="0.0.1",
-    description='subtensornodeapi for bittensor',
-    long_description_content_type='text/markdown',
-    url='https://github.com/opentensor/subtensor-node-api',
-    author='bittensor.com',
-    packages=find_packages(),
-    include_package_data=True,
-    author_email='',
-    license='MIT',
-    keywords=[
-        'nlp',
-        'crypto',
-        'machine learning',
-        'ml',
-        'tao',
-        'bittensor',
-    ],
-    python_requires='>=3.7'
-)
+setup()
