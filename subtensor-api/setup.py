@@ -38,4 +38,6 @@ else: # e.g. platform == None
     # neither linux or macos
     raise Exception("Unsupported platform: {}".format(platform))
 
-setup()
+setup(
+    package_data=package_data,
+)
