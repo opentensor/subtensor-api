@@ -11,6 +11,8 @@ dynamic = ["version"]
 
 requires-python = ">=3.7"
 
+[tool.setuptools.dynamic]
+version = {file = "VERSION"}
 
 [build-system]
 requires = ["setuptools>=61.0"]
