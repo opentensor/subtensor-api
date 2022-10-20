@@ -8,4 +8,4 @@ clean:
 	rm -rf build .pytest_cache dist subtensorapi.egg-info
 
 test-package:
-	python3 -m unittest discover -s subtensor-api/tests
+	python3 -m unittest discover -s tests
