@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "subtensorapi"
 authors = [
@@ -8,18 +12,22 @@ license = { file = "LICENSE" }
 description = "Subtensor API package for bittensor"
 readme = "README.md"
 dynamic = ["version"]
+dependencies = [
+    "tqdm>=4.64.0,<5",
+    "rich>=12.6.0,<13"
+]
 
 requires-python = ">=3.7"
 
 [tool.setuptools.dynamic]
 version = {file = "VERSION"}
 
-[build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
 include-package-data = true
+
+[project.optional-dependencies]
+test = ["unittest"]
 
 [tool.setuptools.packages.find]
 namespaces = true

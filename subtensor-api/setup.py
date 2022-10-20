@@ -38,9 +38,4 @@ else: # e.g. platform == None
     # neither linux or macos
     raise Exception("Unsupported platform: {}".format(platform))
 
-setup(
-    extras_require={
-        'test': ['unittest'],
-        'dev': ['build'],
-    }
-)
+setup()

@@ -1,8 +1,8 @@
 build:
 	python3 -m pip install -e '.'
 
-build-dev:
-	python3 -m pip install -e '.[dev]'
+build-test:
+	python3 -m pip install -e '.[test]'
 
 clean:
 	rm -rf build .pytest_cache dist subtensorapi.egg-info
