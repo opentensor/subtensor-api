@@ -1,14 +1,16 @@
 [project]
 name = "subtensorapi"
-version = "0.0.1"
 authors = [
   { name="Opentensor Foundation", email="cameron@opentensor.ai" },
   { name="Opentensor Foundation", email="eduardo@opentensor.ai" },
 ]
-license = "MIT"
+license = { file = "LICENSE" }
 description = "Subtensor API package for bittensor"
 readme = "README.md"
+dynamic = ["version"]
+
 requires-python = ">=3.7"
+
 
 [build-system]
 requires = ["setuptools>=61.0"]
@@ -21,5 +23,6 @@ include-package-data = true
 namespaces = true
 where = ["src"]
 
-[tool.setuptools.package-data]
-subtensornodeapi = ["subtensor-node-api-linux"]
+[console_scripts]
+sync_and_save = "subtensorapi.cli:sync_and_save"
+blockAtRegistration_for_all_and_save = "subtensorapi.cli:blockAtRegistration_for_all_and_save"

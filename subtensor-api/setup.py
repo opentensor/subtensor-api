@@ -21,6 +21,9 @@ from typing import Optional
 
 from setuptools import setup
 
+with open("VERSION", "r") as version_file:
+    version_from_file: str = version_file.read().strip()
+
 package_data = {
     'subtensorapi': []
 }
@@ -38,4 +41,10 @@ else: # e.g. platform == None
     # neither linux or macos
     raise Exception("Unsupported platform: {}".format(platform))
 
-setup()
+setup(
+    extras_require={
+        'test': ['unittest'],
+        'dev': ['build'],
+    },
+    version=version_from_file
+)

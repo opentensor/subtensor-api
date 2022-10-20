@@ -24,7 +24,8 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from types import SimpleNamespace
-from typing import List
+from typing import List, Optional
+from .exceptions import *
 
 from tqdm import tqdm
 from rich.console import Console
@@ -33,29 +34,6 @@ RAOPERTAO: int = 10e9
 U64MAX: int = 18_446_744_073_709_551_615
 U32MAX: int = 4_294_967_295
 
-class FastSyncException(Exception):
-    """"Exception raised during fast sync of neurons"""
-    pass
-
-class FastSyncOSNotSupportedException(FastSyncException):
-    """"Exception raised when the OS is not supported by fast sync"""
-    pass
-
-class FastSyncNotFoundException(FastSyncException):
-    """"Exception raised when the fast sync binary is not found"""
-    pass
-
-class FastSyncFormatException(FastSyncException):
-    """"Exception raised when the downloaded metagraph file is not formatted correctly"""
-    pass
-
-class FastSyncFileException(FastSyncException):
-    """"Exception raised when the metagraph file cannot be read"""
-    pass
-
-class FastSyncRuntimeException(FastSyncException):
-    """"Exception raised when the fast sync binary fails to run"""
-    pass
 
 class OS_NAME(enum.Enum):
     """Enum for OS_NAME"""
@@ -192,20 +170,26 @@ class FastSync:
         FastSync.verify_fast_sync_support()
         path_to_bin = FastSync.get_path_to_fast_sync()
         console.print("Using subtensor-node-api for neuron retrieval...")
+        args = [path_to_bin, "sync_and_save", "-u", self.endpoint_url, '-b', block_hash]
+        if filename is not None:
+            args.extend(['-f', filename])
         # will write to ~/.bittensor/metagraph.json by default
         try:
-            subprocess.run([path_to_bin, "sync_and_save", "-u", self.endpoint_url, '-b', block_hash, '-f', filename], check=True, stdout=subprocess.PIPE)
+            subprocess.run(args, check=True, stdout=subprocess.PIPE)
         except subprocess.SubprocessError as e:
             raise FastSyncRuntimeException("Error running fast sync binary: {}".format(e))
 
-    def get_blockAtRegistration_for_all_and_save(self, block_hash: str, filename: str, console: Console) -> None:
+    def get_blockAtRegistration_for_all_and_save(self, console: Console, block_hash: str, filename: Optional[str] = None) -> None:
         """Runs the fast sync binary to get blockAtRegistration for all neurons at a given block hash"""
         FastSync.verify_fast_sync_support()
         path_to_bin = FastSync.get_path_to_fast_sync()
         console.print("Using subtensor-node-api for blockAtRegistration storage retrieval...")
+        args = [path_to_bin, "get_block_at_registration_for_all_and_save", "-u", self.endpoint_url, '-b', block_hash]
+        if filename is not None:
+            args.extend(['-f', filename])
         # will write to ~/.bittensor/blockAtRegistration_all.json by default
         try:
-            subprocess.run([path_to_bin, "get_block_at_registration_for_all_and_save", "-u", self.endpoint_url, '-b', block_hash, '-f', filename], check=True, stdout=subprocess.PIPE)
+            subprocess.run(args, check=True, stdout=subprocess.PIPE)
         except subprocess.SubprocessError as e:
             raise FastSyncRuntimeException("Error running fast sync binary: {}".format(e))
 
