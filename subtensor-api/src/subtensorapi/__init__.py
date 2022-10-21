@@ -194,7 +194,7 @@ class FastSync:
             raise FastSyncRuntimeException("Error running fast sync binary: {}".format(e))
 
     @classmethod
-    def load_blockAtRegistration_for_all(cls, json_file_location: str = '~/.bittensor/blockAtRegistration_all.json') -> List[int]:
+    def load_blockAtRegistration_for_all(cls, json_file_location: Optional[str] = '~/.bittensor/blockAtRegistration_all.json') -> List[int]:
         """
         Loads neurons from the blockAtRegistration JSON file
 
@@ -302,7 +302,7 @@ class FastSync:
         return neurons
 
     @classmethod
-    def load_neurons(cls, metagraph_location: str = '~/.bittensor/metagraph.json') -> List[SimpleNamespace]:
+    def load_neurons(cls, metagraph_location: Optional[str] = '~/.bittensor/metagraph.json') -> List[SimpleNamespace]:
         """
         Loads neurons from the metagraph file
 
