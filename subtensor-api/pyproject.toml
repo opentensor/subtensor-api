@@ -34,5 +34,4 @@ namespaces = true
 where = ["src"]
 
 [console_scripts]
-sync_and_save = "subtensorapi.cli:sync_and_save"
-blockAtRegistration_for_all_and_save = "subtensorapi.cli:blockAtRegistration_for_all_and_save"
+subtensorapi = "subtensorapi.__main__:main"
