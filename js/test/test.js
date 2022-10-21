@@ -46,7 +46,7 @@ describe("Test Neurons are pulled", function() {
             return get_mock_api(mock_n);
         }
 
-        const mock_parse_neuron_data = (result) => {
+        const mock_parse_neuron_data = (result, page, pageSize) => {
             return result.map(
                 (result, j) => {
                     return j;

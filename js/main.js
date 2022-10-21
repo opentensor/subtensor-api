@@ -56,7 +56,7 @@ async function getNeurons(api, page, pageSize) {
     })
 };
 
-function parseNeuronData(result) {
+function parseNeuronData(result, page, pageSize) {
     let neurons = result.map((result, j) => {
         const indexStart = page * pageSize;
         const neuron = result.value;
@@ -113,9 +113,9 @@ async function refreshMeta(api, parseNeuronData) {
             }
         }
         const result = await getNeurons(api, page, pageSize)
-    let neurons_ = parseNeuronData(result);
-    
-    _neurons = _neurons.concat(neurons_);
+        let neurons_ = parseNeuronData(result, page, pageSize);
+        
+        _neurons = _neurons.concat(neurons_);
     }
     return _neurons;
 }
