@@ -165,7 +165,7 @@ class FastSync:
         path_to_bin = os.path.join(os.path.dirname(__file__), f"./subtensor-node-api-{os_name.value}")
         return path_to_bin
 
-    def sync_and_save(self, block_hash: str, filename: str, console: Console) -> None:
+    def sync_and_save(self, console: Console, block_hash: str, filename: str) -> None:
         """Runs the fast sync binary to sync all neurons at a given block hash"""
         FastSync.verify_fast_sync_support()
         path_to_bin = FastSync.get_path_to_fast_sync()
