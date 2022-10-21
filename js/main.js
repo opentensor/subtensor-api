@@ -17,7 +17,7 @@ function get_api_from_url(url) {
     return api;
 }
 
-async function sync(url, blockHash=undefined) {
+async function sync(url, get_api_from_url, parseNeuronData, blockHash=undefined) {
     let api = get_api_from_url(url);
 
     // Wait for the API to be connected to the node
@@ -38,7 +38,7 @@ async function sync(url, blockHash=undefined) {
     }
     api = await api.at(blockHash);
     
-    const neurons = await refreshMeta(api);
+    const neurons = await refreshMeta(api, parseNeuronData);
     return neurons;
 }
 
@@ -56,23 +56,8 @@ async function getNeurons(api, page, pageSize) {
     })
 };
 
-async function refreshMeta(api) {
-    const numNeurons = ((await api.query.subtensorModule.n())).words[0];
-
-    let _neurons = [];
-    const numPages = 16;
-    let pageSize = Math.ceil(numNeurons / numPages);
-    const last_page_length = numNeurons % pageSize;
-    for (let page = 0; page < numPages; page++) {
-        if (page === numPages - 1) {
-            // if last page, use the last_page_length
-            if (last_page_length > 0) {
-                // if last_page_length is 0, then the last page is a full page
-                pageSize = last_page_length; 
-            }
-        }
-        const result = await getNeurons(api, page, pageSize)
-    let neurons_ = result.map((result, j) => {
+function parseNeuronData(result) {
+    let neurons = result.map((result, j) => {
         const indexStart = page * pageSize;
         const neuron = result.value;
         console.log(indexStart + j);
@@ -109,13 +94,34 @@ async function refreshMeta(api) {
             })
         };
     });
+    return neurons;
+}
+
+async function refreshMeta(api, parseNeuronData) {
+    const numNeurons = ((await api.query.subtensorModule.n())).words[0];
+
+    let _neurons = [];
+    const numPages = 16;
+    let pageSize = Math.ceil(numNeurons / numPages);
+    const last_page_length = numNeurons % pageSize;
+    for (let page = 0; page < numPages; page++) {
+        if (page === numPages - 1) {
+            // if last page, use the last_page_length
+            if (last_page_length > 0) {
+                // if last_page_length is 0, then the last page is a full page
+                pageSize = last_page_length; 
+            }
+        }
+        const result = await getNeurons(api, page, pageSize)
+    let neurons_ = parseNeuronData(result);
+    
     _neurons = _neurons.concat(neurons_);
     }
     return _neurons;
 }
 
 async function sync_and_save(url, filename, blockHash=undefined) {
-    const neurons = await sync(url, blockHash);
+    const neurons = await sync(url, get_api_from_url, parseNeuronData, blockHash);
     const neurons_json = JSON.stringify(neurons);
     
     fs.writeFileSync(path.resolve(filename.replace('~', os.homedir())), neurons_json);
@@ -160,7 +166,7 @@ async function get_block_at_registration(api) {
     return _blockAtRegistrationAll;
 }
 
-async function get_block_at_registration_for_all(url, blockHash=undefined) {
+async function get_block_at_registration_for_all(url, get_api_from_url, blockHash=undefined) {
     let api = get_api_from_url(url);
 
     // Wait for the API to be connected to the node
@@ -186,7 +192,7 @@ async function get_block_at_registration_for_all(url, blockHash=undefined) {
 }
 
 async function get_block_at_registration_for_all_and_save(url, filename, blockHash=undefined) {
-    const block_at_registration_all = await get_block_at_registration_for_all(url, blockHash);
+    const block_at_registration_all = await get_block_at_registration_for_all(url, get_api_from_url, blockHash);
     const block_at_registration_json = JSON.stringify(block_at_registration_all);
     
     fs.writeFileSync(path.resolve(filename.replace('~', os.homedir())), block_at_registration_json);
@@ -194,5 +200,11 @@ async function get_block_at_registration_for_all_and_save(url, filename, blockHa
 }
 
 module.exports = {
-    sync_and_save, get_block_at_registration_for_all_and_save
+    // for cli
+    sync_and_save, get_block_at_registration_for_all_and_save,
+    // for testing
+    getNeurons,
+    blockAtRegistration,
+    get_block_at_registration_for_all,
+    sync,
 };
