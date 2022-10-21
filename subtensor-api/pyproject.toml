@@ -16,6 +16,10 @@ dependencies = [
     "tqdm>=4.64.0,<5",
     "rich>=12.6.0,<13"
 ]
+project_urls ={
+    "Documentation": "https://github.com/opentensor/subtensor-node-api#subtensor-node-api",
+    "Source": "https://github.com/opentensor/subtensor-node-api"
+}
 
 requires-python = ">=3.7"
 
