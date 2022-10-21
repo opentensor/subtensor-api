@@ -22,11 +22,11 @@ def main(args: Optional[List[str]] = sys.argv[1:]) -> None:
         blockAtRegistration_for_all_and_save
     )
 
-    parsed_args = parser.parse_args()
+    parsed_args = parser.parse_args(args)
 
-    if args.command == "sync_and_save":
+    if parsed_args.command == "sync_and_save":
         cli.sync_and_save(parsed_args)
-    elif args.command == "blockAtRegistration_for_all_and_save":
+    elif parsed_args.command == "blockAtRegistration_for_all_and_save":
         cli.blockAtRegistration_for_all_and_save(parsed_args)
     else:
         parser.print_help()
