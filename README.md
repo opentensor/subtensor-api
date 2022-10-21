@@ -1,5 +1,13 @@
 # subtensor-api
 
+# Running the CLI
+## Install from pypi
+`pip install subtensorapi>=0.0.5`  
+## Usage
+`python3 -m subtensorapi --help`   
+`python3 -m subtensorapi sync_and_save --help`    
+`python3 -m subtensorapi blockAtRegistration_for_all_and_save --help`    
+
 ## Release subtensor-api python package
 
 In order to release the subtensor-api python package we should:
