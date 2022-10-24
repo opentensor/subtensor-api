@@ -32,20 +32,20 @@ class TestLoadNeurons(unittest.TestCase):
                 port=0,
                 stake="0",
                 rank="0",
-                emission=str(random.randint(0, 100) * RAOPERTAO),
-                incentive=str(random.randint(0, 100) * RAOPERTAO),
-                consensus=str(random.randint(0, U64MAX)),
-                trust=str(random.randint(0, U64MAX)),
-                dividends=str(random.randint(0, U64MAX)),
+                emission=str(int(random.randint(0, 100) * RAOPERTAO)),
+                incentive=str(int(int(random.randint(0, 100) * RAOPERTAO))),
+                consensus=str(int(int(random.randint(0, U64MAX)))),
+                trust=str(int(int(random.randint(0, U64MAX)))),
+                dividends=str(int(int(random.randint(0, U64MAX)))),
                 modality=0,
-                last_update=str(random.randint(0, 10000)),
+                last_update=str(int(int(random.randint(0, 10000)))),
                 version=0,
-                priority=str(random.randint(0, U64MAX)),
+                priority=str(int(int(random.randint(0, U64MAX)))),
                 weights=[
                     [0, random.randint(0, U32MAX)],
                 ],
                 bonds=[
-                    [0, str(random.randint(0, 100) * RAOPERTAO)],
+                    [0, str(int(int(random.randint(0, 100) * RAOPERTAO)))],
                 ],
             ).__dict__
         ]
@@ -90,20 +90,20 @@ class TestLoadNeurons(unittest.TestCase):
                 port=0,
                 stake="0",
                 rank="0",
-                emission=str(random.randint(0, 100) * RAOPERTAO),
-                incentive=str(random.randint(0, 100) * RAOPERTAO),
-                consensus="this is not an integer", # should be str(int)
-                trust=str(random.randint(0, U64MAX)),
-                dividends=str(random.randint(0, U64MAX)),
+                emission=str(int(int(random.randint(0, 100) * RAOPERTAO))),
+                incentive=str(int(random.randint(0, 100) * RAOPERTAO)),
+                consensus="this is not an integer", # should be str(int(int))
+                trust=str(int(random.randint(0, U64MAX))),
+                dividends=str(int(random.randint(0, U64MAX))),
                 modality=0,
-                last_update=str(random.randint(0, 10000)),
+                last_update=str(int(random.randint(0, 10000))),
                 version=0,
-                priority=str(random.randint(0, U64MAX)),
+                priority=str(int(random.randint(0, U64MAX))),
                 weights=[
                     [0, random.randint(0, U32MAX)],
                 ],
                 bonds=[
-                    [0, str(random.randint(0, 100) * RAOPERTAO)],
+                    [0, str(int(random.randint(0, 100) * RAOPERTAO))],
                 ],
             ).__dict__
         ]
@@ -130,26 +130,26 @@ class TestLoadNeurons(unittest.TestCase):
        
 class TestSupportCheck(unittest.TestCase):
     def test_os_not_supported_windows(self):
-        with patch("bittensor.utils.fast_sync.FastSync.get_platform", return_value="win32"): # Windows is not supported
+        with patch("subtensorapi.FastSync.get_platform", return_value="win32"): # Windows is not supported
             with pytest.raises(FastSyncOSNotSupportedException):
                 FastSync.verify_os_support()
 
     def test_os_not_supported_other(self):
-        with patch("bittensor.utils.fast_sync.FastSync.get_platform", return_value="someotheros"): # Some other os that is not supported
+        with patch("subtensorapi.FastSync.get_platform", return_value="someotheros"): # Some other os that is not supported
             with pytest.raises(FastSyncOSNotSupportedException):
                 FastSync.verify_os_support()
 
     def test_os_not_supported_freebsd(self):
-        with patch("bittensor.utils.fast_sync.FastSync.get_platform", return_value="freebsd"): # freebsd is not supported
+        with patch("subtensorapi.FastSync.get_platform", return_value="freebsd"): # freebsd is not supported
             with pytest.raises(FastSyncOSNotSupportedException):
                 FastSync.verify_os_support()
     
     def test_os_supported_linux(self):
-        with patch("bittensor.utils.fast_sync.FastSync.get_platform", return_value="linux"): # linux is supported
+        with patch("subtensorapi.FastSync.get_platform", return_value="linux"): # linux is supported
             FastSync.verify_os_support()
 
     def test_os_supported_macos(self):
-        with patch("bittensor.utils.fast_sync.FastSync.get_platform", return_value="darwin"): # darwin is macos and is supported
+        with patch("subtensorapi.FastSync.get_platform", return_value="darwin"): # darwin is macos and is supported
             FastSync.verify_os_support()
     
     def test_binary_not_found(self):
