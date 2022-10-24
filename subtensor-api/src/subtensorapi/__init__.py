@@ -240,7 +240,7 @@ class FastSync:
         try:
             # validate the blockAtRegistration data
             blockAtRegistration_all: List[int] = [
-                int(blockAtRegistration) for blockAtRegistration in tqdm(data)
+                int(blockAtRegistration) for blockAtRegistration in tqdm(data, "Parsing blockAtRegistration_all data")
             ]
         except Exception as e:
             raise FastSyncFormatException('Could not parse blockAtRegistration JSON file data: {}'.format(e))
@@ -270,7 +270,7 @@ class FastSync:
         neurons: List[SimpleNamespace] = []
         try:
             
-            for neuron_data in tqdm(data):
+            for neuron_data in tqdm(data, "Parsing Neuron Data"):
                 # validate the neuron data
                 neuron = SimpleNamespace( **neuron_data )
                 # hotkey and coldkey are strings
