@@ -1,4 +1,4 @@
-const {getNeurons, sync, blockAtRegistration, get_block_at_registration_for_all} = require("../main");
+const {sync, get_block_at_registration_for_all} = require("../main");
 const {expect} = require("chai");
 
 describe("Test Neurons are pulled", function() {
@@ -9,18 +9,27 @@ describe("Test Neurons are pulled", function() {
                 query: {
                     subtensorModule: {
                         neurons: {
-                            multi: function(params) {
+                            entries: function() {
                                 return new Promise(function(resolve, reject) {
-                                    resolve(params); // needs to return an array of the same length. Just return params
+                                    resolve(
+                                        Array.from(new Array(n_neurons), (_, i) => i).map(i => {
+                                            return [
+                                                i,
+                                                {
+                                                    value: i
+                                                }
+                                            ]
+                                        })
+                                    ); // needs to return an array of the same length. Just return params
                                 });
                             }
-                        },
-                        n: function() {
-                            return new Promise(function(resolve, reject) {
-                                resolve({words: [n_neurons]}); // needs to return a number
-                            });
                         }
                     }
+                },
+                connect: () => {
+                    return new Promise(function(resolve, reject) {
+                        resolve();
+                    });
                 },
                 isReady: new Promise(function(resolve, reject) {
                     resolve(true);
@@ -46,18 +55,13 @@ describe("Test Neurons are pulled", function() {
             return get_mock_api(mock_n);
         }
 
-        const mock_parse_neuron_data = (result, page, pageSize) => {
+        const mock_parse_neuron_data = (result) => {
             return result.map(
                 (result, j) => {
                     return j;
                 }
             )
         };
-
-        it("should pull all neurons in page", async function() {
-            const neurons = await getNeurons(get_mock_api(mock_n), 0, 10);
-            expect(neurons).to.have.lengthOf(10);
-        });
 
         it("should pull all n neurons", async function() {
             const neurons = await sync("wss://mock_url:9944", mock_get_api_from_url, mock_parse_neuron_data)
@@ -78,51 +82,53 @@ describe("Test blockAtRegistration are pulled", function() {
     const mock_n = 1024;
 
     const get_mock_api = (n_neurons) => {
-        return {
-            query: {
-                subtensorModule: {
-                    blockAtRegistration: {
-                        multi: function(params) {
+            return {
+                query: {
+                    subtensorModule: {
+                        blockAtRegistration: {
+                            entries: function() {
+                                return new Promise(function(resolve, reject) {
+                                    resolve(
+                                        Array.from(new Array(n_neurons), (_, i) => i).map(i => {
+                                            return [
+                                                i,
+                                                i
+                                            ]
+                                        })
+                                    ); // needs to return an array of the same length. Just return params
+                                });
+                            }
+                        }
+                    }
+                },
+                connect: () => {
+                    return new Promise(function(resolve, reject) {
+                        resolve();
+                    });
+                },
+                isReady: new Promise(function(resolve, reject) {
+                    resolve(true);
+                }),
+                rpc: {
+                    chain: {
+                        getBlockHash: function() {
                             return new Promise(function(resolve, reject) {
-                                resolve(params); // needs to return an array of the same length. Just return params
+                                resolve("0x1631466c080fe9ca1e093b080352bd287b727505c5f15572aaae1e82cea2970a");
                             });
                         }
-                    },
-                    n: function() {
-                        return new Promise(function(resolve, reject) {
-                            resolve({words: [n_neurons]}); // needs to return a number
-                        });
                     }
+                },
+                at: function(blockHash) {
+                    return new Promise(function(resolve, reject) {
+                        resolve(get_mock_api(n_neurons));
+                    });
                 }
-            },
-            isReady: new Promise(function(resolve, reject) {
-                resolve(true);
-            }),
-            rpc: {
-                chain: {
-                    getBlockHash: function() {
-                        return new Promise(function(resolve, reject) {
-                            resolve("0x1631466c080fe9ca1e093b080352bd287b727505c5f15572aaae1e82cea2970a");
-                        });
-                    }
-                }
-            },
-            at: function(blockHash) {
-                return new Promise(function(resolve, reject) {
-                    resolve(get_mock_api(n_neurons));
-                });
             }
-        }
     }
 
     const mock_get_api_from_url = (url) => {
         return get_mock_api(mock_n);
     }
-
-    it("should pull all storageValues in page", async function() {
-        const blockAtRegistration_ = await blockAtRegistration(get_mock_api(mock_n), 0, 10);
-        expect(blockAtRegistration_).to.have.lengthOf(10);
-    });
 
     it("should pull all n blockAtRegistration", async function() {
         const blockAtRegistration_ = await get_block_at_registration_for_all("wss://mock_url:9944", mock_get_api_from_url)
