@@ -60,7 +60,6 @@ function parseNeuronData(result, page, pageSize) {
     let neurons = result.map((result, j) => {
         const indexStart = page * pageSize;
         const neuron = result.value;
-        console.log(indexStart + j);
         return {
             hotkey: (neuron.hotkey).toString(),
             coldkey: (neuron.coldkey).toString(),
