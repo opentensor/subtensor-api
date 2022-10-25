@@ -64,7 +64,7 @@ function parseNeuronData( neuron_data ) {
             ip: (neuron.ip).toString(),
             ip_type: (neuron.ipType).toNumber(),
             port: (neuron.port).toNumber(),
-            uid: j + indexStart,
+            uid: j,
             bonds: neuron.bonds.map(bond => {
                 return [
                     (bond[0]).toNumber(),
