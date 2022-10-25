@@ -5,7 +5,7 @@ const fs = require('fs');
 const os = require("os");
 
 function get_provider_from_url(url) {
-    const provider = new WsProvider(url);
+    const provider = new WsProvider(url, false); // false means no auto reconnect
     return provider;
 }
 
@@ -22,6 +22,7 @@ async function sync(url, get_api_from_url, parseNeuronData, blockHash=undefined)
 
     // Wait for the API to be connected to the node
     try {
+        await api.connect();
         await api.isReady;
     } catch (err) {
         console.log(err);
@@ -42,24 +43,9 @@ async function sync(url, get_api_from_url, parseNeuronData, blockHash=undefined)
     return neurons;
 }
 
-async function getNeurons(api, page, pageSize) {
-    return new Promise((resolve, reject) => {
-      const indexStart = page * pageSize;
-      (api.query.subtensorModule.neurons.multi(
-        Array.from(new Array(pageSize), (_, i) => i + indexStart)
-      ))
-      .then(resolve)
-      .catch(err => {
-        console.log(err)
-        reject(err);
-      });
-    })
-};
-
-function parseNeuronData(result, page, pageSize) {
-    let neurons = result.map((result, j) => {
-        const indexStart = page * pageSize;
-        const neuron = result.value;
+function parseNeuronData( neuron_data ) {
+    let neurons = neuron_data.map((result, j) => {
+        const neuron = result[1].value;
         return {
             hotkey: (neuron.hotkey).toString(),
             coldkey: (neuron.coldkey).toString(),
@@ -97,72 +83,28 @@ function parseNeuronData(result, page, pageSize) {
 }
 
 async function refreshMeta(api, parseNeuronData) {
-    const numNeurons = ((await api.query.subtensorModule.n())).words[0];
-
-    let _neurons = [];
-    const numPages = 16;
-    let pageSize = Math.ceil(numNeurons / numPages);
-    const last_page_length = numNeurons % pageSize;
-    for (let page = 0; page < numPages; page++) {
-        if (page === numPages - 1) {
-            // if last page, use the last_page_length
-            if (last_page_length > 0) {
-                // if last_page_length is 0, then the last page is a full page
-                pageSize = last_page_length; 
-            }
-        }
-        const result = await getNeurons(api, page, pageSize)
-        let neurons_ = parseNeuronData(result, page, pageSize);
-        
-        _neurons = _neurons.concat(neurons_);
-    }
-    return _neurons;
+    const neuron_entries = await api.query.subtensorModule.neurons.entries();
+    const neurons = parseNeuronData(neuron_entries);
+    return neurons
 }
 
 async function sync_and_save(url, filename, blockHash=undefined) {
+    console.time("sync");
     const neurons = await sync(url, get_api_from_url, parseNeuronData, blockHash);
     const neurons_json = JSON.stringify(neurons);
+    console.timeEnd("sync");
     
     fs.writeFileSync(path.resolve(filename.replace('~', os.homedir())), neurons_json);
     return neurons;
 }
 
-async function blockAtRegistration(api, page, pageSize) {
-    return new Promise((resolve, reject) => {
-        const indexStart = page * pageSize;
-        (api.query.subtensorModule.blockAtRegistration.multi(
-          Array.from(new Array(pageSize), (_, i) => i + indexStart)
-        ))
-        .then(resolve)
-        .catch(err => {
-          console.log(err)
-          reject(err);
-        });
-      })
-}
 
 async function get_block_at_registration(api) {
-    const numNeurons = ((await api.query.subtensorModule.n())).words[0];
-
-    let _blockAtRegistrationAll = [];
-    const numPages = 16;
-    let pageSize = Math.ceil(numNeurons / numPages);
-    const last_page_length = numNeurons % pageSize;
-    for (let page = 0; page < numPages; page++) {
-        if (page === numPages - 1) {
-            // if last page, use the last_page_length
-            if (last_page_length > 0) {
-                // if last_page_length is 0, then the last page is a full page
-                pageSize = last_page_length; 
-            }
-        }
-        const result = await blockAtRegistration(api, page, pageSize)
-    let blockAtRegistrationAll_ = result.map((result, j) => {
-        return BigInt(result).toString(); // block number are u64 so we need to convert to string for JSON
+    const result = await api.query.subtensorModule.blockAtRegistration.entries();
+    const blockAtRegistrationAll_parsed = result.map((result, j) => {
+        return BigInt(result[1]).toString(); // block number are u64 so we need to convert to string for JSON
     });
-    _blockAtRegistrationAll = _blockAtRegistrationAll.concat(blockAtRegistrationAll_);
-    }
-    return _blockAtRegistrationAll;
+    return blockAtRegistrationAll_parsed;
 }
 
 async function get_block_at_registration_for_all(url, get_api_from_url, blockHash=undefined) {
@@ -170,6 +112,7 @@ async function get_block_at_registration_for_all(url, get_api_from_url, blockHas
 
     // Wait for the API to be connected to the node
     try {
+        await api.connect();
         await api.isReady;
     } catch (err) {
         console.log(err);
@@ -202,8 +145,6 @@ module.exports = {
     // for cli
     sync_and_save, get_block_at_registration_for_all_and_save,
     // for testing
-    getNeurons,
-    blockAtRegistration,
     get_block_at_registration_for_all,
     sync,
 };
