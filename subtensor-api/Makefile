@@ -10,7 +10,7 @@ dist: .PHONY
 
 dist-macos: .PHONY
 	BT_BUILD_TARGET=darwin python3 -m build --wheel && \
-		mv dist/subtensorapi-$(VERSION)-py3-none-any.whl dist/subtensorapi-$(VERSION)-py3-none-macosx_12_0_universal2.whl
+		mv dist/subtensorapi-$(VERSION)-py3-none-any.whl dist/subtensorapi-$(VERSION)-py3-none-macosx_10_15_universal2.whl
 	
 dist-linux: .PHONY
 	BT_BUILD_TARGET=linux python3 -m build --wheel && \
