@@ -1,5 +1,6 @@
 VERSION := $(shell cat VERSION)
 
+# Order here is important, dist-macos must be before dist-linux
 dist: .PHONY
 	@echo "Building subtensor-api-v$(VERSION)"
 	$(MAKE) clean
