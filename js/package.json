@@ -7,7 +7,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "build": "npx webpack && cp dist_/package.json dist/ && npx pkg dist --targets linux,macos",
+    "build": "npx webpack && cp dist_/package.json dist/ && npx pkg dist --targets linux,macos --compress Brotli",
     "test": "npx mocha"
   },
   "dependencies": {
