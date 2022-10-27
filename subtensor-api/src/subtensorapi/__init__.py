@@ -15,8 +15,6 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
 # DEALINGS IN THE SOFTWARE.
 
-__version__ = '0.0.1'
-
 import enum
 import json
 import os
@@ -184,7 +182,7 @@ class FastSync:
         FastSync.verify_fast_sync_support()
         path_to_bin = FastSync.get_path_to_fast_sync()
         console.print("Using subtensor-node-api for blockAtRegistration storage retrieval...")
-        args = [path_to_bin, "get_block_at_registration_for_all_and_save", "-u", self.endpoint_url, '-b', block_hash]
+        args = [path_to_bin, "block_at_reg_and_save", "-u", self.endpoint_url, '-b', block_hash]
         if filename is not None:
             args.extend(['-f', filename])
         # will write to ~/.bittensor/blockAtRegistration_all.json by default

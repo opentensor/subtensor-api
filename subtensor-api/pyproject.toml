@@ -26,7 +26,6 @@ version = {file = "VERSION"}
 Documentation = "https://github.com/opentensor/subtensor-node-api#subtensor-node-api"
 Source = "https://github.com/opentensor/subtensor-node-api"
 
-
 [tool.setuptools]
 include-package-data = true
 
