@@ -1,6 +1,7 @@
 VERSION := $(shell cat VERSION)
 
-# Order here is important, dist-macos must be before dist-linux
+# Cleaning the build directories between wheels is important to ensure that the
+# binaries are only distributed in one wheel for the correct platform.
 dist: .PHONY
 	@echo "Building subtensor-api-v$(VERSION)"
 	$(MAKE) clean_dist
@@ -8,6 +9,7 @@ dist: .PHONY
 	cd ../js && $(MAKE) build
 	$(MAKE) copy
 	$(MAKE) dist-macos
+	$(MAKE) clean
 	$(MAKE) dist-linux
 
 dist-macos: .PHONY
