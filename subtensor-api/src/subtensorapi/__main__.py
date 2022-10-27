@@ -1,9 +1,8 @@
 import argparse
-
-from . import __version__, cli
-
-from typing import List, Optional
 import sys
+from typing import List, Optional
+
+from . import cli, __version__
 
 
 def main(args: Optional[List[str]] = sys.argv[1:]) -> None:

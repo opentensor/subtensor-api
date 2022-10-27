@@ -15,6 +15,8 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
 # DEALINGS IN THE SOFTWARE.
 
+__version__ = "0.1.1"
+
 import enum
 import json
 import os
@@ -160,7 +162,7 @@ class FastSync:
     def get_path_to_fast_sync(cls) -> str:
         """Returns the path to the fast sync binary"""
         os_name: OS_NAME = cls.get_os()
-        path_to_bin = os.path.join(os.path.dirname(__file__), f"./subtensor-node-api-{os_name.value}")
+        path_to_bin = os.path.join(os.path.dirname(__file__), f"./bin/subtensor-node-api-{os_name.value}")
         return path_to_bin
 
     def sync_and_save(self, console: Console, block_hash: str, filename: Optional[str] = None) -> None:

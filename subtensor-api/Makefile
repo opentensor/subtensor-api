@@ -3,6 +3,7 @@ VERSION := $(shell cat VERSION)
 # Order here is important, dist-macos must be before dist-linux
 dist: .PHONY
 	@echo "Building subtensor-api-v$(VERSION)"
+	$(MAKE) clean_dist
 	$(MAKE) clean
 	cd ../js && $(MAKE) build
 	$(MAKE) copy
@@ -19,7 +20,7 @@ dist-linux: .PHONY
 
 copy: .PHONY
 	@echo "Copying binaries to subtensor-api"
-	cp -r ../js/subtensor-node-api-* ./src/subtensorapi/
+	cp -r ../js/subtensor-node-api-* ./src/subtensorapi/bin/
 
 install:
 	python3 -m pip install -e '.'
@@ -28,7 +29,10 @@ install-test:
 	python3 -m pip install -e '.[test]'
 
 clean:
-	rm -rf build .pytest_cache dist subtensorapi.egg-info
+	rm -rf build .pytest_cache subtensorapi.egg-info
+
+clean_dist:
+	rm -rf dist
 
 test-package:
 	python3 -m unittest discover -s tests
