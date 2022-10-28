@@ -1,74 +1,29 @@
-# subtensor-node-api
+# subtensor-api
 
-To build executables for linux and macos, run `yarn run build`  
-
+# Running the CLI
+## Install from pypi
+`pip install subtensorapi>=0.0.5`  
 ## Usage
-First you build the binary with `yarn build`  
-Then, you can run using the binary (replace `{}` with your OS)  
-`./subtensor-node-api-{macos,linux} [sync_and_save|get_block_at_registration_for_all_and_save]`  
-### sync_and_save
-`./subtensor-node-api-{macos,linux} sync_and_save`  
-This will pull the latest metagraph/neuron data from the chain and write it to a JSON file  
-(default: `~/.bittensor/metagraph.json`) in the [below format](#neuron-structure).  
+`python3 -m subtensorapi --help`   
+`python3 -m subtensorapi sync_and_save --help`    
+`python3 -m subtensorapi blockAtRegistration_for_all_and_save --help`    
 
-You can specify the output filename like so:  
-`./subtensor-node-api-{macos,linux} sync_and_save --filename <foo.json>`    
+## Release subtensor-api python package
 
-You can specify the subtensor endpoint like so:  
-`./subtensor-node-api-{macos,linux} sync_and_save --url <wss://examplendpoint:9944>`   
+In order to release the subtensor-api python package we should:
 
-You can specify the blockhash to sync at like so:  
-`./subtensor-node-api-{macos,linux} sync_and_save --blockHash <0xsomeblockhash>`     
-### get_block_at_registration_for_all_and_save
-`./subtensor-node-api-{macos,linux} get_block_at_registration_for_all_and_save`  
-This will pull the latest storage map for `blockAtRegistration` for all UIDs from the chain and write it to a JSON file  
-(default: `~/.bittensor/blockAtRegistration_all.json`) in the [below format](#blockatregistration-structure).    
+1. Update version (update_version.sh)
+1. Release package (release.sh)
+    1. Tag github repo
+    1. Generate github release
+    1. Update python wheel to pypi
 
-You can specify the output filename like so:   
-`./subtensor-node-api-{macos,linux} get_block_at_registration_for_all_and_save --filename <foo.json>`    
+You can do this with the following commands:
 
-You can specify the subtensor endpoint like so:  
-`./subtensor-node-api-{macos,linux} get_block_at_registration_for_all_and_save -url <wss://examplendpoint:9944>`     
+```
+cd subtensor-api/ && \
+./scripts/release/update_version.sh minor && \
+./scripts/release/release.sh
+```
 
-You can specify the blockhash to sync at like so:   
-`./subtensor-node-api-{macos,linux} sync_and_save --blockHash <0xsomeblockhash>`      
-
-## Neuron Structure
-The NeuronData from `sync_and_save` will be saved into the JSON file as an array with the following types:
-     
-      {
-          "hotkey": str,
-          "coldkey": str,
-          "uid": int,
-          "active": int,
-          "ip": str,
-          "ip_type": int,
-          "port": int,
-          "stake": str(int),
-          "rank": str(int),
-          "emission": str(int),
-          "incentive": str(int),
-          "consensus": str(int),
-          "trust": str(int),
-          "dividends": str(int),
-          "modality": int,
-          "last_update": str(int),
-          "version": int,
-          "priority": str(int),
-          "weights": [
-              [int, int],
-          ],
-          "bonds": [
-              [int, str(int)],
-          ],
-      }
-      
-## blockAtRegistration Structure
-The blockAtRegistration data saved to the JSON file will be a JSON array of integers represented as strings, in the order of their UIDs:  
-  
-    [
-       str(int),
-       str(int),
-       ...,
-       str(int)
-    ]
+> Note that this command will release a minor version. For major or patch version change the usage of the update_version.sh script (major, minor and patch are allowed). 

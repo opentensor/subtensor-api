@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=61.0,<62.0", "build>=0.8.0,<1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "subtensorapi"
+authors = [
+  { name="Opentensor Foundation", email="cameron@opentensor.ai" },
+  { name="Opentensor Foundation", email="eduardo@opentensor.ai" },
+]
+license = { text = "MIT" }
+description = "Subtensor API package for bittensor"
+readme = "README.md"
+dynamic = ["version"]
+dependencies = [
+    "tqdm>=4.64.0,<5",
+    "rich>=12.6.0,<13"
+]
+
+requires-python = ">=3.7"
+
+[tool.setuptools.dynamic]
+version = {file = "VERSION"}
+
+[project.urls]
+Documentation = "https://github.com/opentensor/subtensor-api#subtensor-api"
+Source = "https://github.com/opentensor/subtensor-api"
+
+[tool.setuptools]
+include-package-data = true
+
+[project.optional-dependencies]
+test = ["unittest"]
+
+[tool.setuptools.packages.find]
+namespaces = true
+where = ["src"]
+
+[console_scripts]
+subtensorapi = "subtensorapi.__main__:main"
