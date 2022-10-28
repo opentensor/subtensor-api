@@ -15,7 +15,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
 # DEALINGS IN THE SOFTWARE.
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 import enum
 import json
@@ -251,7 +251,7 @@ class FastSync:
     def _load_neurons_from_metragraph_file_data(cls, file_data: str) -> List[SimpleNamespace]:
         """
         Loads neurons from the metagraph file data
-        See: https://github.com/opentensor/subtensor-node-api#neuron-structure
+        See: https://github.com/opentensor/subtensor-api#neuron-structure
         
         Raises: FastSyncFormatException if the file is not in the correct format
 

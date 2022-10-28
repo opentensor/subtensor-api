@@ -1,1 +1,1 @@
-# Subtensor Node API Python
+# Subtensor API Python package

@@ -23,8 +23,8 @@ requires-python = ">=3.7"
 version = {file = "VERSION"}
 
 [project.urls]
-Documentation = "https://github.com/opentensor/subtensor-node-api#subtensor-node-api"
-Source = "https://github.com/opentensor/subtensor-node-api"
+Documentation = "https://github.com/opentensor/subtensor-api#subtensor-api"
+Source = "https://github.com/opentensor/subtensor-api"
 
 [tool.setuptools]
 include-package-data = true

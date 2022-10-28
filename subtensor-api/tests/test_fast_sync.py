@@ -19,7 +19,7 @@ RAOPERTAO = 10e9
 class TestLoadNeurons(unittest.TestCase):
     def test_load_neurons_from_metagraph_file(self):
         # tests that the function can load a valid metagraph JSON string
-        # See https://github.com/opentensor/subtensor-node-api#neuron-structure
+        # See https://github.com/opentensor/subtensor-api#neuron-structure
 
         fake_neurons: List[SimpleNamespace] = [
             SimpleNamespace(

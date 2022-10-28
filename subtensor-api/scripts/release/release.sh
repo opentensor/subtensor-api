@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# In this script you are going to find the process of releasing subtensor-node-api.
+# In this script you are going to find the process of releasing subtensor-api.
 #
 # This script needs:
 #   - That the current VERSION does not already exist
@@ -9,11 +9,11 @@
 #     - Check pass if you don't know it: https://www.passwordstore.org/
 #
 # This process will generate:
-#   - Tag in Github repo: https://github.com/opentensor/subtensor-node-api/tags
-#   - Release in Github: https://github.com/opentensor/subtensor-node-api/releases
+#   - Tag in Github repo: https://github.com/opentensor/subtensor-api/tags
+#   - Release in Github: https://github.com/opentensor/subtensor-api/releases
 #   - New entry in CHANGELOG.md file
-#   - Python wheel in pypi: https://pypi.org/project/subtensor-node-api/
-#   - Docker image in dockerhub: https://hub.docker.com/r/opentensorfdn/subtensor-node-api/tags (TODO)
+#   - Python wheel in pypi: https://pypi.org/project/subtensorapi/
+#   - Docker image in dockerhub: https://hub.docker.com/r/opentensorfdn/subtensor-api/tags (TODO)
 #
 
 ###
@@ -24,7 +24,7 @@ help(){
     echo Usage:
     echo \ \  $0
     echo
-    echo This script release a subtensor-node-api version.
+    echo This script release a subtensor-api version.
     echo
     echo This script needs:
     echo \ \ - That the current VERSION does not already exist
@@ -32,11 +32,11 @@ help(){
     echo \ \ \ \ - Check pass if you do not know it: https://www.passwordstore.org/
     echo
     echo The release process will generate:
-    echo \ \ - Tag in Github repo: https://github.com/opentensor/subtensor-node-api/tags
-    echo \ \ - Release in Github: https://github.com/opentensor/subtensor-node-api/releases
+    echo \ \ - Tag in Github repo: https://github.com/opentensor/subtensor-api/tags
+    echo \ \ - Release in Github: https://github.com/opentensor/subtensor-api/releases
     echo \ \ - New entry in CHANGELOG.md file
-    echo \ \ - Python wheel in pypi: https://pypi.org/project/subtensor-node-api/
-    echo \ \ - Docker image in dockerhub: https://hub.docker.com/r/opentensorfdn/subtensor-node-api/tags
+    echo \ \ - Python wheel in pypi: https://pypi.org/project/subtensorapi/
+    echo \ \ - Docker image in dockerhub: https://hub.docker.com/r/opentensorfdn/subtensor-api/tags
     echo
 }
 
@@ -127,7 +127,7 @@ function generate_github_release_notes()
         -X POST \
         -H "Accept: application/vnd.github+json" \
         -H "Authorization: Bearer $(pass github/api_bash_access_token)" \
-        https://api.github.com/repos/opentensor/subtensor-node-api/releases/generate-notes \
+        https://api.github.com/repos/opentensor/subtensor-api/releases/generate-notes \
         --data "$(generate_github_release_notes_post_data)"
 }
 
@@ -137,7 +137,7 @@ function create_github_release()
         -X POST \
         -H "Accept: application/vnd.github+json" \
         -H "Authorization: Bearer $(pass github/api_bash_access_token)" \
-        https://api.github.com/repos/opentensor/subtensor-node-api/releases \
+        https://api.github.com/repos/opentensor/subtensor-api/releases \
         --data "$(generate_github_release_post_data)" > /dev/null
 }
 
