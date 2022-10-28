@@ -269,9 +269,10 @@ class FastSync:
         
         neurons: List[SimpleNamespace] = []
         try:
-            
+            # loop over the JSON array and parse the neuron data to correct types
             for neuron_data in tqdm(data, "Parsing Neuron Data"):
-                # validate the neuron data
+                # add all fields to the namespace as-is
+                # only modify the fields that need to be cast and/or adjusted
                 neuron = SimpleNamespace( **neuron_data )
                 # hotkey and coldkey are strings
                 # uid is an int
