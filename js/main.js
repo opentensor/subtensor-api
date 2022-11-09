@@ -133,7 +133,7 @@ async function get_block_at_registration_for_all(url, get_api_from_url, blockHas
             return;
         }
     }
-    //api = await api.at(blockHash);
+    api = await api.at(blockHash);
     
     const block_at_registration_all = await get_block_at_registration(api);
     return block_at_registration_all;

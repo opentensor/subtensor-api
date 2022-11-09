@@ -1,7 +1,7 @@
 # Subtensor API Python package
 A python wrapper around the `@polkadot/api` node library to query the bittensor chain.
 # Install from pypi
-`pip install subtensorapi==0.1.3`  
+`pip install subtensorapi==0.1.4`  
 # Running the CLI
 ## Usage
 View usage  
