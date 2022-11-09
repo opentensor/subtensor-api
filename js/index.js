@@ -3,7 +3,7 @@
 require('yargs')
   .scriptName("subtensor-api")
   .usage('$0 <cmd> [args]')
-  .command('sync_and_save', 'Subtensor API Wrapper v1.1.0', (yargs) => {
+  .command('sync_and_save', 'Subtensor API Wrapper v1.4.1', (yargs) => {
     yargs.options({
       'filename': {
         alias: 'f',
@@ -40,7 +40,7 @@ require('yargs')
       process.exit(1);
     });
   })
-  .command('block_at_reg_and_save', 'Subtensor API Wrapper v1.1.0', (yargs) => {
+  .command('block_at_reg_and_save', 'Subtensor API Wrapper v1.4.1', (yargs) => {
     yargs.options({
       'filename': {
         alias: 'f',

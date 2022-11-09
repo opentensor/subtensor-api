@@ -100,9 +100,15 @@ async function sync_and_save(url, filename, blockHash=undefined) {
 
 
 async function get_block_at_registration(api) {
-    const result = await api.query.subtensorModule.blockAtRegistration.entries();
+    const n = (await api.query.subtensorModule.n()).words[0];
+    const result = await api.query.subtensorModule.blockAtRegistration.multi(Array.from(Array(n).keys()))
     const blockAtRegistrationAll_parsed = result.map((result, j) => {
-        return BigInt(result[1]).toString(); // block number are u64 so we need to convert to string for JSON
+        try {
+            return BigInt(result).toString();  // block number are u64 so we need to convert to string for JSON
+        } catch (err) {
+            console.log("Error parsing blockAtRegistration for neuron " + j);
+            throw err;
+        }
     });
     return blockAtRegistrationAll_parsed;
 }
@@ -127,7 +133,7 @@ async function get_block_at_registration_for_all(url, get_api_from_url, blockHas
             return;
         }
     }
-    api = await api.at(blockHash);
+    //api = await api.at(blockHash);
     
     const block_at_registration_all = await get_block_at_registration(api);
     return block_at_registration_all;
