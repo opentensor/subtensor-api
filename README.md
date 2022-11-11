@@ -2,11 +2,12 @@
 
 # Running the CLI
 ## Install from pypi
-`pip install subtensorapi==0.1.3`  
+`pip install subtensorapi==0.2.0`  
 ## Usage
 `python3 -m subtensorapi --help`   
 `python3 -m subtensorapi sync_and_save --help`    
-`python3 -m subtensorapi blockAtRegistration_for_all_and_save --help`    
+`python3 -m subtensorapi sync_and_save_historical --help`    
+`python3 -m subtensorapi blockAtReg_and_save --help`    
 
 ## Release subtensor-api python package
 

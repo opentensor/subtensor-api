@@ -63,6 +63,40 @@ The NeuronData from `sync_and_save` will be saved into the JSON file as an array
           ],
       }
       
+## historical structure
+The historical neuron data is saved to a JSON file as an object with key of blockNumber and each neuron is under a key of uid:
+     
+      { 
+        "<blockNumber>": {
+            "<uid>": {
+                "hotkey": str,
+                "coldkey": str,
+                "uid": int,
+                "active": int,
+                "ip": str,
+                "ip_type": int,
+                "port": int,
+                "stake": str(int),
+                "rank": str(int),
+                "emission": str(int),
+                "incentive": str(int),
+                "consensus": str(int),
+                "trust": str(int),
+                "dividends": str(int),
+                "modality": int,
+                "last_update": str(int),
+                "version": int,
+                "priority": str(int),
+                "weights": [
+                    [int, int],
+                ],
+                "bonds": [
+                    [int, str(int)],
+                ],
+            }
+        }
+    }
+
 ## blockAtRegistration Structure
 The blockAtRegistration data saved to the JSON file will be a JSON array of integers represented as strings, in the order of their UIDs:  
   

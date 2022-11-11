@@ -21,12 +21,21 @@ def main(args: Optional[List[str]] = sys.argv[1:]) -> None:
         blockAtRegistration_for_all_and_save
     )
 
+    sync_and_save_historical = cmd_parsers.add_parser(
+        "sync_and_save_historical"
+    )
+    cli.add_args_sync_and_save_historical(
+        sync_and_save_historical
+    )
+
     parsed_args = parser.parse_args(args)
 
     if parsed_args.command == "sync_and_save":
         cli.sync_and_save(parsed_args)
     elif parsed_args.command == "blockAtReg_and_save":
         cli.blockAtRegistration_for_all_and_save(parsed_args)
+    elif parsed_args.command == "sync_and_save_historical":
+        cli.sync_and_save_historical(parsed_args)
     else:
         parser.print_help()
 

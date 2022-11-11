@@ -15,10 +15,10 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-import subprocess
 from . import FastSync
 from rich.console import Console
 import argparse
+from typing import List, Union
 
 console = Console()
 
@@ -42,21 +42,15 @@ def run_get_blockAtRegistration_for_all_and_save(
     # get neurons
     fast_sync.get_blockAtRegistration_for_all_and_save(console, block_hash, filename)
 
-
-def sync_neurons(filename: str, path_to_bin: str) -> None:
-    """Runs the fast sync binary to sync all neurons at a given block hash"""
-
-    print("Using subtensor-node-api for neuron retrieval...")
-    # will write to ~/.bittensor/metagraph.json by default
-    try:
-        subprocess.run(
-            [path_to_bin, "sync_and_save", "-f", filename],
-            check=True,
-            stdout=subprocess.PIPE,
-        )
-    except subprocess.SubprocessError as e:
-        raise Exception("Error running fast sync binary: {}".format(e))
-
+def run_sync_and_save_historical(
+    filename: str, block_numbers: List[Union[int, str]], uids: List[int], endpoint_url: str
+) -> None:
+    # check if fast sync is available
+    FastSync.verify_fast_sync_support()
+    # try to fast sync
+    fast_sync: FastSync = FastSync(endpoint_url)
+    # get historical neuron data
+    fast_sync.sync_and_save_historical(console, block_numbers, uids, filename)
 
 def add_args_sync_and_save(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
@@ -85,6 +79,46 @@ def add_args_sync_and_save(parser: argparse.ArgumentParser) -> None:
 def sync_and_save(parsed_args: argparse.Namespace) -> None:
     run_sync_and_save(
         parsed_args.filename, parsed_args.block_hash, parsed_args.endpoint_url
+    )
+
+def add_args_sync_and_save_historical(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "-f",
+        "--filename",
+        type=str,
+        default="~/.bittensor/metagraph_historical.json",
+        help="Filename to save metagraph to",
+    )
+    parser.add_argument(
+        "-b",
+        "--block_numbers",
+        type=str,
+        nargs="+",
+        default=["latest"],
+        help="Block number(s) to sync neurons at",
+    )
+    parser.add_argument(
+        "-i",
+        "--uids",
+        type=int,
+        nargs="*",
+        default=[],
+        help="UID(s) to sync (default: all)",
+    )
+    parser.add_argument(
+        "-u",
+        "--endpoint_url",
+        type=str,
+        default="wss://AtreusLB-2c6154f73e6429a9.elb.us-east-2.amazonaws.com:9944",
+        help="Endpoint url to connect to",
+    )
+
+def sync_and_save_historical(parsed_args: argparse.Namespace) -> None:
+    run_sync_and_save_historical(
+        parsed_args.filename,
+        parsed_args.block_numbers,
+        parsed_args.uids,
+        parsed_args.endpoint_url,
     )
 
 

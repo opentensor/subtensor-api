@@ -17,6 +17,56 @@ function get_api_from_url(url) {
     return api;
 }
 
+async function sync_historical(url, get_api_from_url, parseNeuronData, blockNumbers=[undefined], uids=[]) {
+    // get neuron info at each block for one or more uids
+    let api = get_api_from_url(url);
+
+    // Wait for the API to be connected to the node
+    try {
+        await api.connect();
+        await api.isReady;
+    } catch (err) {
+        console.log(err);
+        return;
+    }
+
+    const historical_metagraph  = {
+        
+    }
+    for (let i = 0; i < blockNumbers.length; i++) {
+        let blockNumber = blockNumbers[i];
+        let blockHash;
+        if (!!!blockNumber || blockNumber === "latest") {
+            try {
+                const block = await api.rpc.chain.getBlock(); // latest block
+                blockHash = block.block.header.hash;
+                blockNumber = block.block.header.number;
+            } catch (err) {
+                console.log(err);
+                return;
+            }
+        } else {
+            blockHash = await api.rpc.chain.getBlockHash(blockNumber);
+        }
+
+        api = await api.at(blockHash);
+        
+        let uids_to_query = uids;
+
+        if (uids.length === 0) {
+            // get all uids
+            const n = (await api.query.subtensorModule.n()).words[0];
+            uids_to_query = Array.from(Array(n).keys());
+        }
+    
+        const neurons = await api.query.subtensorModule.neurons.multi(uids_to_query)
+        const parsedNeurons = parseNeuronData(neurons.map(neuron => neuron.value));
+        historical_metagraph[blockNumber] = Object.fromEntries(parsedNeurons.map(neuron => [neuron.uid, neuron]));
+    }
+
+    return historical_metagraph;
+}
+
 async function sync(url, get_api_from_url, parseNeuronData, blockHash=undefined) {
     let api = get_api_from_url(url);
 
@@ -44,8 +94,7 @@ async function sync(url, get_api_from_url, parseNeuronData, blockHash=undefined)
 }
 
 function parseNeuronData( neuron_data ) {
-    let neurons = neuron_data.map((result, j) => {
-        const neuron = result[1].value;
+    let neurons = neuron_data.map((neuron, j) => {
         return {
             hotkey: (neuron.hotkey).toString(),
             coldkey: (neuron.coldkey).toString(),
@@ -64,7 +113,7 @@ function parseNeuronData( neuron_data ) {
             ip: (neuron.ip).toString(),
             ip_type: (neuron.ipType).toNumber(),
             port: (neuron.port).toNumber(),
-            uid: j,
+            uid: (neuron.uid).toNumber(),
             bonds: neuron.bonds.map(bond => {
                 return [
                     (bond[0]).toNumber(),
@@ -84,7 +133,7 @@ function parseNeuronData( neuron_data ) {
 
 async function refreshMeta(api, parseNeuronData) {
     const neuron_entries = await api.query.subtensorModule.neurons.entries();
-    const neurons = parseNeuronData(neuron_entries);
+    const neurons = parseNeuronData(neuron_entries.map(entry => entry[1].value));
     return neurons
 }
 
@@ -98,6 +147,15 @@ async function sync_and_save(url, filename, blockHash=undefined) {
     return neurons;
 }
 
+async function sync_and_save_historical(url, filename, blockNumbers=[undefined], uids=[]) {
+    console.time("sync_historical");
+    const neurons = await sync_historical(url, get_api_from_url, parseNeuronData, blockNumbers, uids);
+    const neurons_json = JSON.stringify(neurons);
+    console.timeEnd("sync_historical");
+    
+    fs.writeFileSync(path.resolve(filename.replace('~', os.homedir())), neurons_json);
+    return neurons;
+}
 
 async function get_block_at_registration(api) {
     const n = (await api.query.subtensorModule.n()).words[0];
@@ -149,7 +207,7 @@ async function get_block_at_registration_for_all_and_save(url, filename, blockHa
 
 module.exports = {
     // for cli
-    sync_and_save, get_block_at_registration_for_all_and_save,
+    sync_and_save, get_block_at_registration_for_all_and_save, sync_and_save_historical,
     // for testing
     get_block_at_registration_for_all,
     sync,

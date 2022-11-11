@@ -15,7 +15,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
 # DEALINGS IN THE SOFTWARE.
 
-__version__ = "0.1.4"
+__version__ = "0.2.0"
 
 import enum
 import json
@@ -24,7 +24,7 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from types import SimpleNamespace
-from typing import List, Optional
+from typing import List, Optional, Union, Dict
 from .exceptions import *
 
 from tqdm import tqdm
@@ -179,6 +179,22 @@ class FastSync:
         except subprocess.SubprocessError as e:
             raise FastSyncRuntimeException("Error running fast sync binary: {}".format(e))
 
+    def sync_and_save_historical(self, console: Console, block_numbers: List[Union[int, str]] = ["latest"], uids: List[int] = [], filename: Optional[str] = None) -> None:
+        """Runs the fast sync binary to sync all uids at each block number"""
+        FastSync.verify_fast_sync_support()
+        path_to_bin = FastSync.get_path_to_fast_sync()
+        console.print("Using subtensor-node-api for historical neuron retrieval...")
+        args = (
+            [path_to_bin, "sync_and_save", "-u", self.endpoint_url] +
+            (['-b'] + [str(bn) for bn in block_numbers]) +
+            (['-i'] + [str(uid) for uid in uids]) if len(uids) > 0 else [] + # uids are optional, default to all
+            (['-f', filename] if filename is not None else []) # will write to ~/.bittensor/metagraph_historical.json by default
+        )
+        try:
+            subprocess.run(args, check=True, stdout=subprocess.PIPE)
+        except subprocess.SubprocessError as e:
+            raise FastSyncRuntimeException("Error running fast sync binary: {}".format(e))
+
     def get_blockAtRegistration_for_all_and_save(self, console: Console, block_hash: str, filename: Optional[str] = None) -> None:
         """Runs the fast sync binary to get blockAtRegistration for all neurons at a given block hash"""
         FastSync.verify_fast_sync_support()
@@ -197,6 +213,7 @@ class FastSync:
     def load_blockAtRegistration_for_all(cls, json_file_location: Optional[str] = '~/.bittensor/blockAtRegistration_all.json') -> List[int]:
         """
         Loads neurons from the blockAtRegistration JSON file
+        See: https://github.com/opentensor/subtensor-api/tree/main/js#blockatregistration-structure
 
         Args:
             json_file_location (str, optional): The location of the blockAtRegistration JSON file. Defaults to '~/.bittensor/blockAtRegistration_all.json'.
@@ -251,7 +268,7 @@ class FastSync:
     def _load_neurons_from_metragraph_file_data(cls, file_data: str) -> List[SimpleNamespace]:
         """
         Loads neurons from the metagraph file data
-        See: https://github.com/opentensor/subtensor-api#neuron-structure
+        See: https://github.com/opentensor/subtensor-api/tree/main/js#neuron-structure
         
         Raises: FastSyncFormatException if the file is not in the correct format
 
@@ -263,7 +280,7 @@ class FastSync:
         except json.JSONDecodeError:
             raise FastSyncFormatException('Could not parse metagraph file data as json')
 
-        # all the large ints are strings
+        # the top level is a list
         if not isinstance(data, list):
             raise FastSyncFormatException('Expected a JSON array at the top level')
         
@@ -303,6 +320,90 @@ class FastSync:
         return neurons
 
     @classmethod
+    def _load_neurons_from_historical_metragraph_file_data(cls, file_data: str) -> Dict[str, Dict[str, SimpleNamespace]]:
+        """
+        Loads neurons from the historical metagraph file data
+        See: https://github.com/opentensor/subtensor-api/tree/main/js#neuron-structure
+        See: https://github.com/opentensor/subtensor-api/tree/main/js#historical-structure
+        
+        Raises: FastSyncFormatException if the file is not in the correct format
+
+        Returns: Dict[str(int), Dict[str(int), SimpleNamespace]]
+            a Dict of blockNumber to Dict of uid to neuron data
+        """
+        try:
+            data = json.loads(file_data)
+        except json.JSONDecodeError:
+            raise FastSyncFormatException('Could not parse metagraph file data as json')
+
+        # the top level is a dict
+        if not isinstance(data, dict):
+            raise FastSyncFormatException('Expected a JSON object at the top level')
+        
+        historical: Dict[int, Dict[int, SimpleNamespace]] = {}
+        try:
+            # loop over the JSON object and parse the neuron data to correct types
+            for blockNumber, block_data in tqdm(data.items(), "Parsing Historical Data"):
+                historical[blockNumber] = {}
+                for uid, neuron_data in tqdm(block_data.items(), "Parsing Neuron Data"):
+                    # add all fields to the namespace as-is
+                    # only modify the fields that need to be cast and/or adjusted
+                    neuron = SimpleNamespace( **neuron_data )
+                    # hotkey and coldkey are strings
+                    # uid is an int
+                    # active is an int
+                    # ip is a string
+                    # ip_type is an int
+                    # port is an int
+                    neuron.stake = int(neuron.stake) / RAOPERTAO
+                    neuron.rank = int(neuron.rank) / U64MAX
+                    neuron.emission = int(neuron.emission) / RAOPERTAO
+                    neuron.incentive = int(neuron.incentive) / U64MAX
+                    neuron.consensus = int(neuron.consensus) / U64MAX
+                    neuron.trust = int(neuron.trust) / U64MAX
+                    neuron.dividends = int(neuron.dividends) / U64MAX
+                    # modality is an int
+                    neuron.last_update = int(neuron.last_update)
+                    # version is an int
+                    neuron.priority = int(neuron.priority)
+                    # weights are already ints
+                    neuron.bonds = [[bond[0], int(bond[1])] for bond in neuron.bonds]
+
+                    neuron.is_null = False
+                    
+                    historical[blockNumber][uid] = neuron
+
+        except Exception as e:
+            raise FastSyncFormatException('Could not parse metagraph file data: {}'.format(e))
+            
+        return historical
+
+    @classmethod
+    def load_historical_neurons(cls, metagraph_location: Optional[str] = '~/.bittensor/metagraph_historical.json') -> Dict[str, Dict[str, SimpleNamespace]]:
+        """
+        Loads neurons from the historical metagraph file
+
+        Args:
+            metagraph_location (str, optional): The location of the metagraph file. Defaults to '~/.bittensor/metagraph_historical.json'.
+        
+        Raises:
+            FastSyncFileException: If the metagraph file could not be read
+            FastSyncFormatException: If the metagraph file is not in the correct format
+        
+        Returns:
+            Dict[str(int), Dict[str(int), SimpleNamespace]]:
+                a Dict of blockNumber to Dict of uid to neuron data
+        """
+        try:
+            with open(os.path.join(os.path.expanduser(metagraph_location))) as f:
+                file_data = f.read()
+            return cls._load_neurons_from_historical_metragraph_file_data(file_data)
+        except FileNotFoundError:
+            raise FastSyncFileException('{} not found. Try calling sync_and_save_historical() first.', metagraph_location)
+        except OSError:
+            raise FastSyncFileException('Could not read {}', metagraph_location)
+
+    @classmethod
     def load_neurons(cls, metagraph_location: Optional[str] = '~/.bittensor/metagraph.json') -> List[SimpleNamespace]:
         """
         Loads neurons from the metagraph file
@@ -323,6 +424,6 @@ class FastSync:
                 file_data = f.read()
             return cls._load_neurons_from_metragraph_file_data(file_data)
         except FileNotFoundError:
-            raise FastSyncFileException('{} not found. Try calling fast_sync_neurons() first.', metagraph_location)
+            raise FastSyncFileException('{} not found. Try calling sync_and_save() first.', metagraph_location)
         except OSError:
             raise FastSyncFileException('Could not read {}', metagraph_location)
