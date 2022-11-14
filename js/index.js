@@ -77,7 +77,7 @@ require('yargs')
     return sync_and_save_historical(
       argv.url,
       argv.filename,
-      argv.blockHash,
+      argv.blockNumbers,
       argv.uids
       ).then(() => {
       console.log(`Done metagraph sync for Block(s):${argv.blockNumbers} and UID(s):${argv.uids}, wrote to file: ${argv.filename}`);
