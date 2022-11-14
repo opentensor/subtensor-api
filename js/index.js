@@ -1,6 +1,6 @@
 const {sync_and_save, get_block_at_registration_for_all_and_save, sync_and_save_historical} = require('./main.js');
 
-const VERSION = 'v1.5.1'
+const VERSION = 'v1.5.2'
 
 require('yargs')
   .scriptName("subtensor-api")
