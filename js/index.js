@@ -1,6 +1,6 @@
 const {sync_and_save, get_block_at_registration_for_all_and_save, sync_and_save_historical} = require('./main.js');
 
-const VERSION = 'v1.5.2'
+const VERSION = 'v1.6.0'
 
 require('yargs')
   .scriptName("subtensor-api")
@@ -12,6 +12,13 @@ require('yargs')
         type: 'string',
         default: '~/.bittensor/metagraph.json',
         describe: 'the filename to save the metagraph to',
+        demandOption: false,
+      },
+      'fd': {
+        alias: 'p',
+        type: 'number',
+        default: undefined,
+        describe: 'the fd to pipe the metagraph to',
         demandOption: false,
       },
       'url': {
@@ -34,6 +41,7 @@ require('yargs')
       argv.url,
       argv.filename,
       argv.blockHash === 'latest' ? undefined : argv.blockHash, // If latest, then call using undefined.
+      argv.fd,
       ).then(() => {
       console.log(`Done metagraph sync for Block:${argv.blockHash}, wrote to file: ${argv.filename}`);
       process.exit(0);
@@ -49,6 +57,13 @@ require('yargs')
         type: 'string',
         default: '~/.bittensor/metagraph_historical.json',
         describe: 'the filename to save the metagraph to',
+        demandOption: false,
+      },
+      'fd': {
+        alias: 'p',
+        type: 'number',
+        default: undefined,
+        describe: 'the fd to pipe the metagraph to',
         demandOption: false,
       },
       'url': {
@@ -78,9 +93,14 @@ require('yargs')
       argv.url,
       argv.filename,
       argv.blockNumbers,
-      argv.uids
+      argv.uids,
+      argv.fd,
       ).then(() => {
-      console.log(`Done metagraph sync for Block(s):${argv.blockNumbers} and UID(s):${argv.uids}, wrote to file: ${argv.filename}`);
+      if (argv.fd) {
+        console.log(`Done metagraph sync for Block(s):${argv.blockNumbers} and UID(s):${argv.uids}, wrote to fd: ${argv.fd}`);
+      } else {
+        console.log(`Done metagraph sync for Block(s):${argv.blockNumbers} and UID(s):${argv.uids}, wrote to file: ${argv.filename}`);
+      }
       process.exit(0);
     }).catch(err => {
       console.log(err);
@@ -94,6 +114,13 @@ require('yargs')
         type: 'string',
         default: '~/.bittensor/blockAtRegistration_all.json',
         describe: 'the filename to save the data to',
+        demandOption: false,
+      },
+      'fd': {
+        alias: 'p',
+        type: 'number',
+        default: undefined,
+        describe: 'the fd to pipe the metagraph to',
         demandOption: false,
       },
       'url': {
@@ -116,6 +143,7 @@ require('yargs')
       argv.url,
       argv.filename,
       argv.blockHash === 'latest' ? undefined : argv.blockHash, // If latest, then call using undefined.
+      argv.fd,
       ).then(() => {
       console.log(`Done blockAtRegistration for all for Block:${argv.blockHash}, wrote to file: ${argv.filename}`);
       process.exit(0);

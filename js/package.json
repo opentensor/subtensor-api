@@ -1,6 +1,6 @@
 {
   "name": "subtensor-node-api",
-  "version": "1.5.2",
+  "version": "1.6.0",
   "description": "Connects with a Subtensor node using the polkadotJS API",
   "bin": "bundle.js",
   "author": "Opentensor Foundation",

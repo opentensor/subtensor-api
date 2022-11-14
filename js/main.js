@@ -137,23 +137,31 @@ async function refreshMeta(api, parseNeuronData) {
     return neurons
 }
 
-async function sync_and_save(url, filename, blockHash=undefined) {
+async function sync_and_save(url, filename, blockHash=undefined, fd=undefined) {
     console.time("sync");
     const neurons = await sync(url, get_api_from_url, parseNeuronData, blockHash);
     const neurons_json = JSON.stringify(neurons);
     console.timeEnd("sync");
-    
-    fs.writeFileSync(path.resolve(filename.replace('~', os.homedir())), neurons_json);
+
+    if (fd) {
+        fs.writeFileSync(fd, neurons_json);
+    } else {
+        fs.writeFileSync(path.resolve(filename.replace('~', os.homedir())), neurons_json);
+    }
     return neurons;
 }
 
-async function sync_and_save_historical(url, filename, blockNumbers=[undefined], uids=[]) {
+async function sync_and_save_historical(url, filename, blockNumbers=[undefined], uids=[], fd=undefined) {
     console.time("sync_historical");
     const neurons = await sync_historical(url, get_api_from_url, parseNeuronData, blockNumbers, uids);
     const neurons_json = JSON.stringify(neurons);
     console.timeEnd("sync_historical");
-    
-    fs.writeFileSync(path.resolve(filename.replace('~', os.homedir())), neurons_json);
+
+    if (!!fd) {
+        fs.writeFileSync(fd, neurons_json);
+    } else {
+        fs.writeFileSync(path.resolve(filename.replace('~', os.homedir())), neurons_json);
+    }
     return neurons;
 }
 
@@ -197,11 +205,15 @@ async function get_block_at_registration_for_all(url, get_api_from_url, blockHas
     return block_at_registration_all;
 }
 
-async function get_block_at_registration_for_all_and_save(url, filename, blockHash=undefined) {
+async function get_block_at_registration_for_all_and_save(url, filename, blockHash=undefined, fd=undefined) {
     const block_at_registration_all = await get_block_at_registration_for_all(url, get_api_from_url, blockHash);
     const block_at_registration_json = JSON.stringify(block_at_registration_all);
     
-    fs.writeFileSync(path.resolve(filename.replace('~', os.homedir())), block_at_registration_json);
+    if (!!fd) {
+        fs.writeFileSync(fd, block_at_registration_json);
+    } else {
+        fs.writeFileSync(path.resolve(filename.replace('~', os.homedir())), block_at_registration_json);
+    }
     return block_at_registration_all;
 }
 
