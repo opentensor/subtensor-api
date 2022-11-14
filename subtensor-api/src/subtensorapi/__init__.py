@@ -15,7 +15,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
 # DEALINGS IN THE SOFTWARE.
 
-__version__ = "0.2.1"
+__version__ = "0.2.2"
 
 import enum
 import json
@@ -168,46 +168,57 @@ class FastSync:
     def sync_and_save(self, console: Console, block_hash: str, filename: Optional[str] = None) -> None:
         """Runs the fast sync binary to sync all neurons at a given block hash"""
         FastSync.verify_fast_sync_support()
-        path_to_bin = FastSync.get_path_to_fast_sync()
         console.print("Using subtensor-node-api for neuron retrieval...")
-        args = [path_to_bin, "sync_and_save", "-u", self.endpoint_url, '-b', block_hash]
+        args = ["sync_and_save", "-u", self.endpoint_url, '-b', block_hash]
         if filename is not None:
             args.extend(['-f', filename])
         # will write to ~/.bittensor/metagraph.json by default
+        self.__call_binary(console, args)
+
+    def __call_binary(self, console: Console, args: List[str]) -> None:
+        """
+        Calls the fast sync binary with the given args
+
+        Args:
+            args: List of arguments to pass to the fast
+                sync binary
+
+        Raises:
+            FastSyncRuntimeException: If the fast sync binary fails
+        """
+        FastSync.verify_fast_sync_support()
+        path_to_bin = FastSync.get_path_to_fast_sync()
+        args = [path_to_bin] + args
         try:
-            subprocess.run(args, check=True, stdout=subprocess.PIPE)
-        except subprocess.SubprocessError as e:
-            raise FastSyncRuntimeException("Error running fast sync binary: {}".format(e))
+            subprocess.run(args, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        except subprocess.CalledProcessError as e:
+            stderr = e.stderr.decode(sys.getfilesystemencoding())
+            raise FastSyncRuntimeException("Error running fast sync binary: {}\nSTDERR={}".format(e, stderr))
 
     def sync_and_save_historical(self, console: Console, block_numbers: List[Union[int, str]] = ["latest"], uids: List[int] = [], filename: Optional[str] = None) -> None:
         """Runs the fast sync binary to sync all uids at each block number"""
         FastSync.verify_fast_sync_support()
-        path_to_bin = FastSync.get_path_to_fast_sync()
         console.print("Using subtensor-node-api for historical neuron retrieval...")
         args = (
-            [path_to_bin, "sync_and_save_historical", "-u", self.endpoint_url] +
+            ["sync_and_save_historical", "-u", self.endpoint_url] +
             (['-b'] + [str(bn) for bn in block_numbers]) +
-            (['-i'] + [str(uid) for uid in uids]) if len(uids) > 0 else [] + # uids are optional, default to all
+            ((['-i'] + [str(uid) for uid in uids]) if len(uids) > 0 else []) + # uids are optional, default to all
             (['-f', filename] if filename is not None else []) # will write to ~/.bittensor/metagraph_historical.json by default
         )
-        try:
-            subprocess.run(args, check=True, stdout=subprocess.PIPE)
-        except subprocess.SubprocessError as e:
-            raise FastSyncRuntimeException("Error running fast sync binary: {}".format(e))
+
+        console.print("Running fast sync binary with args: {}".format(args))
+
+        self.__call_binary(console, args)
 
     def get_blockAtRegistration_for_all_and_save(self, console: Console, block_hash: str, filename: Optional[str] = None) -> None:
         """Runs the fast sync binary to get blockAtRegistration for all neurons at a given block hash"""
         FastSync.verify_fast_sync_support()
-        path_to_bin = FastSync.get_path_to_fast_sync()
         console.print("Using subtensor-node-api for blockAtRegistration storage retrieval...")
-        args = [path_to_bin, "block_at_reg_and_save", "-u", self.endpoint_url, '-b', block_hash]
+        args = ["block_at_reg_and_save", "-u", self.endpoint_url, '-b', block_hash]
         if filename is not None:
             args.extend(['-f', filename])
         # will write to ~/.bittensor/blockAtRegistration_all.json by default
-        try:
-            subprocess.run(args, check=True, stdout=subprocess.PIPE)
-        except subprocess.SubprocessError as e:
-            raise FastSyncRuntimeException("Error running fast sync binary: {}".format(e))
+        self.__call_binary(console, args)
 
     @classmethod
     def load_blockAtRegistration_for_all(cls, json_file_location: Optional[str] = '~/.bittensor/blockAtRegistration_all.json') -> List[int]:
