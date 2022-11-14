@@ -49,17 +49,17 @@ async function sync_historical(url, get_api_from_url, parseNeuronData, blockNumb
             blockHash = await api.rpc.chain.getBlockHash(blockNumber);
         }
 
-        api = await api.at(blockHash);
+        const api_at_block = await api.at(blockHash);
         
         let uids_to_query = uids;
 
         if (uids.length === 0) {
             // get all uids
-            const n = (await api.query.subtensorModule.n()).words[0];
+            const n = (await api_at_block.query.subtensorModule.n()).words[0];
             uids_to_query = Array.from(Array(n).keys());
         }
     
-        const neurons = await api.query.subtensorModule.neurons.multi(uids_to_query)
+        const neurons = await api_at_block.query.subtensorModule.neurons.multi(uids_to_query)
         const parsedNeurons = parseNeuronData(neurons.map(neuron => neuron.value));
         historical_metagraph[blockNumber] = Object.fromEntries(parsedNeurons.map(neuron => [neuron.uid, neuron]));
     }
