@@ -185,7 +185,7 @@ class FastSync:
         path_to_bin = FastSync.get_path_to_fast_sync()
         console.print("Using subtensor-node-api for historical neuron retrieval...")
         args = (
-            [path_to_bin, "sync_and_save", "-u", self.endpoint_url] +
+            [path_to_bin, "sync_and_save_historical", "-u", self.endpoint_url] +
             (['-b'] + [str(bn) for bn in block_numbers]) +
             (['-i'] + [str(uid) for uid in uids]) if len(uids) > 0 else [] + # uids are optional, default to all
             (['-f', filename] if filename is not None else []) # will write to ~/.bittensor/metagraph_historical.json by default
