@@ -24,11 +24,12 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from types import SimpleNamespace
-from typing import List, Optional, Union, Dict
-from .exceptions import *
+from typing import Dict, List, Optional, Union
 
-from tqdm import tqdm
 from rich.console import Console
+from tqdm import tqdm
+
+from .exceptions import *
 
 RAOPERTAO: int = 10e9
 U64MAX: int = 18_446_744_073_709_551_615
@@ -213,7 +214,6 @@ class FastSync:
             subprocess.run(
                 args, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                 pass_fds=[out_fd], # pass the read end of the pipe to nodejs
-                close_fds=False # don't close the read end of the pipe automatically
             )
             file_data = os.read(in_fd, max_size)
 
