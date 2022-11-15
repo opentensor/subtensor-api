@@ -15,10 +15,9 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
 # DEALINGS IN THE SOFTWARE.
 
-__version__ = "0.2.4"
+__version__ = "1.0.0"
 
 import enum
-import asyncio
 import json
 import os
 import subprocess
@@ -27,7 +26,6 @@ from dataclasses import dataclass
 from types import SimpleNamespace
 from typing import Dict, List, Optional, Union
 
-from rich.console import Console
 from tqdm import tqdm
 
 from .exceptions import *
@@ -168,7 +166,7 @@ class FastSync:
         return path_to_bin
 
     @classmethod
-    def __call_binary(cls, console: Console, args: List[str]) -> None:
+    def __call_binary(cls, args: List[str]) -> None:
         """
         Calls the fast sync binary with the given args
 
@@ -190,12 +188,11 @@ class FastSync:
 
 
     @classmethod
-    def __call_binary_and_get_file(cls, console: Console, args: List[str], max_size: int = 100 * 1024 * 1024) -> bytes:
+    def __call_binary_and_get_file(cls, args: List[str], max_size: int = 100 * 1024 * 1024) -> bytes:
         """
         Calls the fast sync binary with the given args and returns the file_data
 
         Args:
-            console: Console to print to
             args: List of arguments to pass to the fast
                 sync binary
             max_size: Maximum size of the file to read in bytes
@@ -211,7 +208,7 @@ class FastSync:
         in_fd, out_fd = os.pipe()
         
         args = [path_to_bin] + args + ['-p', str(out_fd)] # pass write end of pipe to nodejs
-        print(args)
+        
         try:
             with subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, pass_fds=[out_fd]) as proc:
                 file_data = os.read(in_fd, max_size)
@@ -234,30 +231,27 @@ class FastSync:
             stderr = e.stderr.decode(sys.getfilesystemencoding())
             raise FastSyncRuntimeException("Error running fast sync binary: {}\nSTDERR={}".format(e, stderr))
 
-    def sync_and_save(self, console: Console, block_hash: str, filename: Optional[str] = None) -> None:
+    def sync_and_save(self, block_hash: str, filename: Optional[str] = None) -> None:
         """Runs the fast sync binary to sync all neurons at a given block hash"""
         self.verify_fast_sync_support()
-        console.print("Using subtensor-node-api for neuron retrieval...")
         args = ["sync_and_save", "-u", self.endpoint_url, '-b', block_hash]
         if filename is not None:
             args.extend(['-f', filename])
         # will write to ~/.bittensor/metagraph.json by default
-        self.__call_binary(console, args)
+        self.__call_binary(args)
 
-    def sync_fd(self, console: Console, block_hash: str) -> List[SimpleNamespace]:
+    def sync_fd(self, block_hash: str) -> List[SimpleNamespace]:
         """Runs the fast sync binary to sync all neurons at a given block hash"""
         self.verify_fast_sync_support()
-        console.print("Using subtensor-node-api for neuron retrieval...")
         args = ["sync_and_save", "-u", self.endpoint_url, '-b', block_hash]
 
-        file_data = self.__call_binary_and_get_file(console, args)
+        file_data = self.__call_binary_and_get_file(args)
 
         return self._load_neurons_from_metragraph_file_data(file_data)
 
-    def sync_and_save_historical(self, console: Console, block_numbers: List[Union[int, str]] = ["latest"], uids: List[int] = [], filename: Optional[str] = None) -> None:
+    def sync_and_save_historical(self, block_numbers: List[Union[int, str]] = ["latest"], uids: List[int] = [], filename: Optional[str] = None) -> None:
         """Runs the fast sync binary to sync all uids at each block number"""
         self.verify_fast_sync_support()
-        console.print("Using subtensor-node-api for historical neuron retrieval...")
         args = (
             ["sync_and_save_historical", "-u", self.endpoint_url] +
             (['-b'] + [str(bn) for bn in block_numbers]) +
@@ -265,43 +259,36 @@ class FastSync:
             (['-f', filename] if filename is not None else []) # will write to ~/.bittensor/metagraph_historical.json by default
         )
 
-        console.print("Running fast sync binary with args: {}".format(args))
+        self.__call_binary(args)
 
-        self.__call_binary(console, args)
-
-    def sync_historical_fd(self, console: Console, block_numbers: List[Union[int, str]] = ["latest"], uids: List[int] = []) -> Dict[str, Dict[str, SimpleNamespace]]:
+    def sync_historical_fd(self, block_numbers: List[Union[int, str]] = ["latest"], uids: List[int] = []) -> Dict[str, Dict[str, SimpleNamespace]]:
         """Runs the fast sync binary to sync all uids at each block number"""
         self.verify_fast_sync_support()
-        console.print("Using subtensor-node-api for historical neuron retrieval...")
         args = (
             ["sync_and_save_historical", "-u", self.endpoint_url] +
             (['-b'] + [str(bn) for bn in block_numbers]) +
             ((['-i'] + [str(uid) for uid in uids]) if len(uids) > 0 else []) # uids are optional, default to all
         )
 
-        console.print("Running fast sync binary with args: {}".format(args))
-
-        file_data = self.__call_binary_and_get_file(console, args)
+        file_data = self.__call_binary_and_get_file(args)
 
         return self._load_neurons_from_historical_metragraph_file_data(file_data)
 
-    def get_blockAtRegistration_for_all_and_save(self, console: Console, block_hash: str, filename: Optional[str] = None) -> None:
+    def get_blockAtRegistration_for_all_and_save(self, block_hash: str, filename: Optional[str] = None) -> None:
         """Runs the fast sync binary to get blockAtRegistration for all neurons at a given block hash"""
         self.verify_fast_sync_support()
-        console.print("Using subtensor-node-api for blockAtRegistration storage retrieval...")
         args = ["block_at_reg_and_save", "-u", self.endpoint_url, '-b', block_hash]
         if filename is not None:
             args.extend(['-f', filename])
         # will write to ~/.bittensor/blockAtRegistration_all.json by default
-        self.__call_binary(console, args)
+        self.__call_binary(args)
 
-    def get_blockAtRegistration_for_all_fd(self, console: Console, block_hash: str) -> List[int]:
+    def get_blockAtRegistration_for_all_fd(self, block_hash: str) -> List[int]:
         """Runs the fast sync binary to get blockAtRegistration for all neurons at a given block hash"""
         self.verify_fast_sync_support()
-        console.print("Using subtensor-node-api for blockAtRegistration storage retrieval...")
         args = ["block_at_reg_and_save", "-u", self.endpoint_url, '-b', block_hash]
 
-        file_data = self.__call_binary_and_get_file(console, args)
+        file_data = self.__call_binary_and_get_file(args)
 
         return self._load_neurons_from_blockAtRegistration_all_file_data(file_data)
 

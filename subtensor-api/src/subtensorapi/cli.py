@@ -16,11 +16,8 @@
 # DEALINGS IN THE SOFTWARE.
 
 from . import FastSync
-from rich.console import Console
 import argparse
 from typing import List, Union
-
-console = Console()
 
 
 def run_sync_and_save(filename: str, block_hash: str, endpoint_url: str) -> None:
@@ -29,7 +26,7 @@ def run_sync_and_save(filename: str, block_hash: str, endpoint_url: str) -> None
     # try to fast sync
     fast_sync: FastSync = FastSync(endpoint_url)
     # get neurons
-    fast_sync.sync_and_save(console, block_hash, filename)
+    fast_sync.sync_and_save(block_hash, filename)
 
 
 def run_get_blockAtRegistration_for_all_and_save(
@@ -40,7 +37,7 @@ def run_get_blockAtRegistration_for_all_and_save(
     # try to fast sync
     fast_sync: FastSync = FastSync(endpoint_url)
     # get neurons
-    fast_sync.get_blockAtRegistration_for_all_and_save(console, block_hash, filename)
+    fast_sync.get_blockAtRegistration_for_all_and_save(block_hash, filename)
 
 def run_sync_and_save_historical(
     filename: str, block_numbers: List[Union[int, str]], uids: List[int], endpoint_url: str
@@ -50,7 +47,7 @@ def run_sync_and_save_historical(
     # try to fast sync
     fast_sync: FastSync = FastSync(endpoint_url)
     # get historical neuron data
-    fast_sync.sync_and_save_historical(console, block_numbers, uids, filename)
+    fast_sync.sync_and_save_historical(block_numbers, uids, filename)
 
 def add_args_sync_and_save(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
