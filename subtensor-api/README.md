@@ -1,7 +1,7 @@
 # Subtensor API Python package
 A python wrapper around the `@polkadot/api` node library to query the bittensor chain.
 # Install from pypi
-`pip install subtensorapi==0.1.4`  
+`pip install subtensorapi==1.0.0`  
 # Running the CLI
 ## Usage
 View usage  
@@ -43,7 +43,7 @@ Pulls the `neurons` storage map.
 # specify block_hash to sync at. Default is "latest"
 block_hash = "0xb2fa081[...]"
 # run the sync command and save to JSON file at block_hash
-fast_sync.sync_and_save(rich.Console(), block_hash)
+fast_sync.sync_and_save(block_hash)
 # load neurons in from JSON file
 neurons = fast_sync.load_neurons()
 ```
@@ -54,7 +54,7 @@ Pulls the `blockAtRegistration` storage map.
 # specify block_hash to sync at. Default is "latest"
 block_hash = "0xb2fa081[...]"
 # run the pull command and save to JSON file at block_hash
-fast_sync.get_blockAtRegistration_for_all_and_save(rich.Console(), block_hash)
+fast_sync.get_blockAtRegistration_for_all_and_save(block_hash)
 # load blockAtRegistration_all from JSON file
 blockAtRegistration_all = fast_sync.load_blockAtRegistration_for_all()
 ```
