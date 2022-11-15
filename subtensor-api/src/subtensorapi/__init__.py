@@ -18,6 +18,7 @@
 __version__ = "0.2.4"
 
 import enum
+import asyncio
 import json
 import os
 import subprocess
@@ -187,6 +188,7 @@ class FastSync:
             stderr = e.stderr.decode(sys.getfilesystemencoding())
             raise FastSyncRuntimeException("Error running fast sync binary: {}\nSTDERR={}".format(e, stderr))
 
+
     @classmethod
     def __call_binary_and_get_file(cls, console: Console, args: List[str], max_size: int = 100 * 1024 * 1024) -> bytes:
         """
@@ -211,16 +213,23 @@ class FastSync:
         args = [path_to_bin] + args + ['-p', str(out_fd)] # pass write end of pipe to nodejs
         print(args)
         try:
-            subprocess.run(
-                args, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                pass_fds=[out_fd], # pass the read end of the pipe to nodejs
-            )
-            file_data = os.read(in_fd, max_size)
+            with subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, pass_fds=[out_fd]) as proc:
+                file_data = os.read(in_fd, max_size)
+                proc.wait()
 
-            os.close(in_fd) # close the read end of the pipe
-            os.close(out_fd) # close the write end of the pipe
+            os.close(in_fd)
+            os.close(out_fd)
+            
+            # with env should close the read end of the pipe
 
+            # check for errors
+            if proc.returncode != 0:
+                # read stderr from nodejs
+                stderr = proc.stderr.read().decode(sys.getfilesystemencoding())
+                raise FastSyncRuntimeException("Error running fast sync binary: {}\nSTDERR={}".format(proc.returncode, stderr))
+            
             return file_data
+        
         except subprocess.CalledProcessError as e:
             stderr = e.stderr.decode(sys.getfilesystemencoding())
             raise FastSyncRuntimeException("Error running fast sync binary: {}\nSTDERR={}".format(e, stderr))

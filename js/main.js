@@ -158,7 +158,7 @@ async function sync_and_save_historical(url, filename, blockNumbers=[undefined],
     console.timeEnd("sync_historical");
 
     if (!!fd) {
-        fs.writeFile(fd, neurons_json);
+        fs.writeFileSync(fd, neurons_json);
     } else {
         fs.writeFileSync(path.resolve(filename.replace('~', os.homedir())), neurons_json);
     }
