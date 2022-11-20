@@ -15,7 +15,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
 # DEALINGS IN THE SOFTWARE.
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 import enum
 import json
@@ -25,6 +25,7 @@ import sys
 from dataclasses import dataclass
 from types import SimpleNamespace
 from typing import Dict, List, Optional, Union
+import multiprocessing as mp
 
 from tqdm import tqdm
 
@@ -188,34 +189,40 @@ class FastSync:
 
 
     @classmethod
-    def __call_binary_and_get_file(cls, args: List[str], max_size: int = 100 * 1024 * 1024) -> bytes:
+    def __call_binary_and_get_file(cls, args: List[str]) -> bytes:
         """
         Calls the fast sync binary with the given args and returns the file_data
 
         Args:
             args: List of arguments to pass to the fast
                 sync binary
-            max_size: Maximum size of the file to read in bytes
-                default: 100MB
 
         Raises:
             FastSyncRuntimeException: If the fast sync binary fails
         """
+        READ_BUFFER_SIZE: int = 3 * 1024 * 1024
         cls.verify_fast_sync_support()
         path_to_bin = cls.get_path_to_fast_sync()
 
         # create pipe to get file from nodejs
-        in_fd, out_fd = os.pipe()
+        conn = mp.Pipe()
+        conn1, conn2 = conn
+        in_fd, out_fd = conn1.fileno(), conn2.fileno()
         
         args = [path_to_bin] + args + ['-p', str(out_fd)] # pass write end of pipe to nodejs
         
         try:
             with subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, pass_fds=[out_fd]) as proc:
-                file_data = os.read(in_fd, max_size)
+                file_data = b''
+                conn1.poll(10) # wait for 10 seconds for first data to be written to pipe
+                while conn1.poll(0.1): 
+                    data = os.read(in_fd, READ_BUFFER_SIZE)
+                    file_data += data
+                
                 proc.wait()
 
-            os.close(in_fd)
-            os.close(out_fd)
+            conn1.close()
+            conn2.close()
             
             # with env should close the read end of the pipe
 
@@ -230,6 +237,8 @@ class FastSync:
         except subprocess.CalledProcessError as e:
             stderr = e.stderr.decode(sys.getfilesystemencoding())
             raise FastSyncRuntimeException("Error running fast sync binary: {}\nSTDERR={}".format(e, stderr))
+        except Exception as e:
+            print(e)
 
     def sync_and_save(self, block_hash: str, filename: Optional[str] = None) -> None:
         """Runs the fast sync binary to sync all neurons at a given block hash"""
