@@ -89,7 +89,8 @@ async function sync(url, get_api_from_url, parseNeuronData, blockHash=undefined)
     }
     api = await api.at(blockHash);
     
-    const neurons = await refreshMeta(api, parseNeuronData);
+    const neurons_unordered = await refreshMeta(api, parseNeuronData);
+    const neurons = neurons_unordered.sort((a, b) => a.uid - b.uid);
     return neurons;
 }
 
@@ -133,8 +134,8 @@ function parseNeuronData( neuron_data ) {
 
 async function refreshMeta(api, parseNeuronData) {
     const neuron_entries = await api.query.subtensorModule.neurons.entries();
-    const neurons = parseNeuronData(neuron_entries.map(entry => entry[1].value));
-    return neurons
+    const neurons_unordered = parseNeuronData(neuron_entries.map(entry => entry[1].value));
+    return neurons_unordered;
 }
 
 async function sync_and_save(url, filename, blockHash=undefined, fd=undefined) {
