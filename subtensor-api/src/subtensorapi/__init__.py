@@ -15,7 +15,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
 # DEALINGS IN THE SOFTWARE.
 
-__version__ = "1.0.3"
+__version__ = "1.0.4"
 
 import enum
 import json
@@ -189,7 +189,7 @@ class FastSync:
 
 
     @classmethod
-    def __call_binary_and_get_file(cls, args: List[str], init_read_timeout: int = 20) -> bytes:
+    def __call_binary_and_get_file(cls, args: List[str], init_read_timeout: int = 30) -> bytes:
         """
         Calls the fast sync binary with the given args and returns the file_data
 
@@ -231,6 +231,9 @@ class FastSync:
                 # read stderr from nodejs
                 stderr = proc.stderr.read().decode(sys.getfilesystemencoding())
                 raise FastSyncRuntimeException("Error running fast sync binary: {}\nSTDERR={}".format(proc.returncode, stderr))
+
+            if file_data == b'':
+                raise FastSyncRuntimeException("Error running fast sync binary: No data returned from nodejs within timeout {}s".format(init_read_timeout))
             
             return file_data
         
