@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.0.3 / 2022-11-20
+
+
+
+
+## 1.0.2 / 2022-11-20
+
+
+
+
+## 1.0.1 / 2022-11-20
+
+
+
+
 ## 1.0.0 / 2022-11-15
 
 **Full Changelog**: https://github.com/opentensor/subtensor-api/compare/v0.2.4...v1.0.0
