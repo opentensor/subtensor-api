@@ -189,7 +189,7 @@ class FastSync:
 
 
     @classmethod
-    def __call_binary_and_get_file(cls, args: List[str]) -> bytes:
+    def __call_binary_and_get_file(cls, args: List[str], init_read_timeout: int = 20) -> bytes:
         """
         Calls the fast sync binary with the given args and returns the file_data
 
@@ -214,12 +214,12 @@ class FastSync:
         try:
             with subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, pass_fds=[out_fd]) as proc:
                 file_data = b''
-                conn1.poll(10) # wait for 10 seconds for first data to be written to pipe
+                conn1.poll(init_read_timeout) # wait for first data to be written to pipe
                 while conn1.poll(0.1): 
                     data = os.read(in_fd, READ_BUFFER_SIZE)
                     file_data += data
                 
-                proc.wait()
+                proc.wait(0.2) # wait for process to finish
 
             conn1.close()
             conn2.close()
