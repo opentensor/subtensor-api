@@ -2,7 +2,7 @@
 
 # Running the CLI
 ## Install from pypi
-`pip install subtensorapi==0.2.0`  
+`pip install subtensorapi==1.1.0`  
 ## Usage
 `python3 -m subtensorapi --help`   
 `python3 -m subtensorapi sync_and_save --help`    
