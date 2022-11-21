@@ -7,6 +7,7 @@
 `python3 -m subtensorapi --help`   
 `python3 -m subtensorapi sync_and_save --help`    
 `python3 -m subtensorapi sync_and_save_historical --help`    
+`python3 -m subtensorapi sync_and_save_historical_difficulty --help`    
 `python3 -m subtensorapi blockAtReg_and_save --help`    
 
 ## Release subtensor-api python package
