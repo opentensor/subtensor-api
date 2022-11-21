@@ -138,6 +138,61 @@ async function refreshMeta(api, parseNeuronData) {
     return neurons_unordered;
 }
 
+async function difficulty_historical(url, get_api_from_url, blockNumbers=[undefined]) {
+    let api = get_api_from_url(url);
+
+    // Wait for the API to be connected to the node
+    try {
+        await api.connect();
+        await api.isReady;
+    } catch (err) {
+        console.log(err);
+        return;
+    }
+
+    const historical_difficulty  = {
+        
+    }
+
+    for (let i = 0; i < blockNumbers.length; i++) {
+        let blockNumber = blockNumbers[i];
+        let blockHash;
+        if (!!!blockNumber || blockNumber === "latest") {
+            try {
+                const block = await api.rpc.chain.getBlock(); // latest block
+                blockHash = block.block.header.hash;
+                blockNumber = block.block.header.number;
+            } catch (err) {
+                console.log(err);
+                return;
+            }
+        } else {
+            blockHash = await api.rpc.chain.getBlockHash(blockNumber);
+        }
+
+        const api_at_block = await api.at(blockHash);
+
+        const difficulty = BigInt(await api_at_block.query.subtensorModule.difficulty()).toString();
+        historical_difficulty[blockNumber] = difficulty;
+    }
+
+    return historical_difficulty;
+}
+
+async function sync_and_save_historical_difficulty(url, filename, blockNumbers=[undefined], fd=undefined) {
+    console.time("difficulty_historical");
+    const neurons = await difficulty_historical(url, get_api_from_url, blockNumbers);
+    const neurons_json = JSON.stringify(neurons);
+    console.timeEnd("difficulty_historical");
+
+    if (!!fd) {
+        fs.writeFileSync(fd, neurons_json);
+    } else {
+        fs.writeFileSync(path.resolve(filename.replace('~', os.homedir())), neurons_json);
+    }
+    return neurons;
+}
+
 async function sync_and_save(url, filename, blockHash=undefined, fd=undefined) {
     console.time("sync");
     const neurons = await sync(url, get_api_from_url, parseNeuronData, blockHash);
@@ -220,7 +275,7 @@ async function get_block_at_registration_for_all_and_save(url, filename, blockHa
 
 module.exports = {
     // for cli
-    sync_and_save, get_block_at_registration_for_all_and_save, sync_and_save_historical,
+    sync_and_save, get_block_at_registration_for_all_and_save, sync_and_save_historical, sync_and_save_historical_difficulty,
     // for testing
     get_block_at_registration_for_all,
     sync,
