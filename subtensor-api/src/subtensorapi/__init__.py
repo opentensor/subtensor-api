@@ -187,13 +187,17 @@ class FastSync:
 
 
     @classmethod
-    def __call_binary_and_get_file(cls, args: List[str], init_read_timeout: int = 30) -> bytes:
+    def __call_binary_and_get_file(cls, args: List[str], init_read_timeout: Optional[int] = 30) -> bytes:
         """
         Calls the fast sync binary with the given args and returns the file_data
 
         Args:
             args: List of arguments to pass to the fast
                 sync binary
+            init_read_timeout (optional): 
+                Timeout for the initial read of the file
+                in seconds. Defaults to 30 seconds.
+                None means no timeout.
 
         Raises:
             FastSyncRuntimeException: If the fast sync binary fails
@@ -208,7 +212,8 @@ class FastSync:
         in_fd, out_fd = conn1.fileno(), conn2.fileno()
         
         args = [path_to_bin] + args + ['-p', str(out_fd)] # pass write end of pipe to nodejs
-        
+        std_out, std_err = None, None
+
         try:
             with subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, pass_fds=[out_fd]) as proc:
                 file_data = b''
@@ -216,8 +221,12 @@ class FastSync:
                 while conn1.poll(0.1): 
                     data = os.read(in_fd, READ_BUFFER_SIZE)
                     file_data += data
-                
-                proc.wait(0.2) # wait for process to finish
+
+                try:
+                    std_out, std_err = proc.communicate(None, timeout=0.2)
+                except subprocess.TimeoutExpired:
+                    proc.kill()
+                    std_out, std_err = proc.communicate(None, timeout=0.2)
 
             conn1.close()
             conn2.close()
@@ -227,7 +236,7 @@ class FastSync:
             # check for errors
             if proc.returncode != 0:
                 # read stderr from nodejs
-                stderr = proc.stderr.read().decode(sys.getfilesystemencoding())
+                stderr = std_err.decode(sys.getfilesystemencoding()) if std_err else ''
                 raise FastSyncRuntimeException("Error running fast sync binary: {}\nSTDERR={}".format(proc.returncode, stderr))
 
             if file_data == b'':
@@ -238,8 +247,6 @@ class FastSync:
         except subprocess.CalledProcessError as e:
             stderr = e.stderr.decode(sys.getfilesystemencoding())
             raise FastSyncRuntimeException("Error running fast sync binary: {}\nSTDERR={}".format(e, stderr))
-        except Exception as e:
-            print(e)
 
     def sync_and_save(self, block_hash: str, filename: Optional[str] = None) -> None:
         """Runs the fast sync binary to sync all neurons at a given block hash"""
@@ -250,12 +257,12 @@ class FastSync:
         # will write to ~/.bittensor/metagraph.json by default
         self.__call_binary(args)
 
-    def sync_fd(self, block_hash: str) -> List[SimpleNamespace]:
+    def sync_fd(self, block_hash: str, init_read_timeout: int = 30) -> List[SimpleNamespace]:
         """Runs the fast sync binary to sync all neurons at a given block hash"""
         self.verify_fast_sync_support()
         args = ["sync_and_save", "-u", self.endpoint_url, '-b', block_hash]
 
-        file_data = self.__call_binary_and_get_file(args)
+        file_data = self.__call_binary_and_get_file(args, init_read_timeout=init_read_timeout)
 
         return self._load_neurons_from_metragraph_file_data(file_data)
 
@@ -271,7 +278,7 @@ class FastSync:
 
         self.__call_binary(args)
 
-    def sync_historical_fd(self, block_numbers: List[Union[int, str]] = ["latest"], uids: List[int] = []) -> Dict[str, Dict[str, SimpleNamespace]]:
+    def sync_historical_fd(self, block_numbers: List[Union[int, str]] = ["latest"], uids: List[int] = [], init_read_timeout: int = 30) -> Dict[str, Dict[str, SimpleNamespace]]:
         """Runs the fast sync binary to sync all uids at each block number"""
         self.verify_fast_sync_support()
         args = (
@@ -280,7 +287,7 @@ class FastSync:
             ((['-i'] + [str(uid) for uid in uids]) if len(uids) > 0 else []) # uids are optional, default to all
         )
 
-        file_data = self.__call_binary_and_get_file(args)
+        file_data = self.__call_binary_and_get_file(args, init_read_timeout=init_read_timeout)
 
         return self._load_neurons_from_historical_metragraph_file_data(file_data)
 
