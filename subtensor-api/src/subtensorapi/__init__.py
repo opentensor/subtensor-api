@@ -29,7 +29,7 @@ import multiprocessing as mp
 
 from .exceptions import *
 
-RAOPERTAO: int = 10e9
+RAOPERTAO: int = 1e9
 U64MAX: int = 18_446_744_073_709_551_615
 U32MAX: int = 4_294_967_295
 
