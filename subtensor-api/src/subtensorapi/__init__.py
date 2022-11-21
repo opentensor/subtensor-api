@@ -27,8 +27,6 @@ from types import SimpleNamespace
 from typing import Dict, List, Optional, Union
 import multiprocessing as mp
 
-from tqdm import tqdm
-
 from .exceptions import *
 
 RAOPERTAO: int = 10e9
@@ -352,7 +350,7 @@ class FastSync:
         try:
             # validate the blockAtRegistration data
             blockAtRegistration_all: List[int] = [
-                int(blockAtRegistration) for blockAtRegistration in tqdm(data, "Parsing blockAtRegistration_all data")
+                int(blockAtRegistration) for blockAtRegistration in data
             ]
         except Exception as e:
             raise FastSyncFormatException('Could not parse blockAtRegistration JSON file data: {}'.format(e))
@@ -382,7 +380,7 @@ class FastSync:
         neurons: List[SimpleNamespace] = []
         try:
             # loop over the JSON array and parse the neuron data to correct types
-            for neuron_data in tqdm(data, "Parsing Neuron Data"):
+            for neuron_data in data:
                 # add all fields to the namespace as-is
                 # only modify the fields that need to be cast and/or adjusted
                 neuron = SimpleNamespace( **neuron_data )
@@ -438,9 +436,9 @@ class FastSync:
         historical: Dict[int, Dict[int, SimpleNamespace]] = {}
         try:
             # loop over the JSON object and parse the neuron data to correct types
-            for blockNumber, block_data in tqdm(data.items(), "Parsing Historical Data"):
+            for blockNumber, block_data in data.items():
                 historical[blockNumber] = {}
-                for uid, neuron_data in tqdm(block_data.items(), "Parsing Neuron Data"):
+                for uid, neuron_data in block_data.items():
                     # add all fields to the namespace as-is
                     # only modify the fields that need to be cast and/or adjusted
                     neuron = SimpleNamespace( **neuron_data )
