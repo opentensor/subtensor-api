@@ -97,6 +97,17 @@ The historical neuron data is saved to a JSON file as an object with key of bloc
         }
     }
 
+## historical difficulty structure
+The historical difficulty data is saved to a JSON file as an object with value as a string of the difficulty with key of blockNumber 
+*Note: Ordering of the keys is not guaranteed.*
+     
+    { 
+        "<blockNumber0>": "<difficulty0>",
+        "<blockNumber1>": "<difficulty1>",
+        ...,
+        "<blockNumbern>": "<difficultyn>",
+    }
+
 ## blockAtRegistration Structure
 The blockAtRegistration data saved to the JSON file will be a JSON array of integers represented as strings, in the order of their UIDs:  
   
