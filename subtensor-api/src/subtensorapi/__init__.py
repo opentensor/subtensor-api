@@ -291,6 +291,29 @@ class FastSync:
 
         return self._load_neurons_from_historical_metragraph_file_data(file_data)
 
+    def sync_and_save_historical_difficulty(self, block_numbers: List[Union[int, str]] = ["latest"], filename: Optional[str] = None) -> None:
+        """Runs the fast sync binary to sync difficulty at each block number"""
+        self.verify_fast_sync_support()
+        args = (
+            ["sync_and_save_historical_difficulty", "-u", self.endpoint_url] +
+            (['-b'] + [str(bn) for bn in block_numbers]) +
+            (['-f', filename] if filename is not None else []) # will write to ~/.bittensor/metagraph_historical.json by default
+        )
+
+        self.__call_binary(args)
+
+    def sync_historical_difficulty_fd(self, block_numbers: List[Union[int, str]] = ["latest"], init_read_timeout: int = 30) -> Dict[str, Dict[str, SimpleNamespace]]:
+        """Runs the fast sync binary to sync difficulty at each block number"""
+        self.verify_fast_sync_support()
+        args = (
+            ["sync_and_save_historical_difficulty", "-u", self.endpoint_url] +
+            (['-b'] + [str(bn) for bn in block_numbers])
+        )
+
+        file_data = self.__call_binary_and_get_file(args, init_read_timeout=init_read_timeout)
+
+        return self._load_historical_difficulty_file_data(file_data)
+
     def get_blockAtRegistration_for_all_and_save(self, block_hash: str, filename: Optional[str] = None) -> None:
         """Runs the fast sync binary to get blockAtRegistration for all neurons at a given block hash"""
         self.verify_fast_sync_support()
@@ -477,6 +500,62 @@ class FastSync:
             raise FastSyncFormatException('Could not parse metagraph file data: {}'.format(e))
             
         return historical
+
+    @classmethod
+    def _load_historical_difficulty_file_data(cls, file_data: str) -> Dict[str, Dict[str, SimpleNamespace]]:
+        """
+        Loads neurons from the historical difficulty file data
+        See: https://github.com/opentensor/subtensor-api/tree/main/js#historical-difficulty-structure
+        
+        Raises: FastSyncFormatException if the file is not in the correct format
+
+        Returns: Dict[str(int), int]
+            a Dict of blockNumber to difficulty
+        """
+        try:
+            data = json.loads(file_data)
+        except json.JSONDecodeError:
+            raise FastSyncFormatException('Could not parse historical difficulty file data as json')
+
+        # the top level is a dict
+        if not isinstance(data, dict):
+            raise FastSyncFormatException('Expected a JSON object at the top level')
+        
+        historical: Dict[str(int), int] = {}
+        try:
+            # loop over the JSON object and parse data
+            for blockNumber, difficulty_str in data.items():
+                historical[blockNumber] = int(difficulty_str)
+
+        except Exception as e:
+            raise FastSyncFormatException('Could not parse historical difficulty file data: {}'.format(e))
+            
+        return historical
+
+    @classmethod
+    def load_historical_difficulty(cls, difficulty_location: Optional[str] = '~/.bittensor/difficulty_historical.json') -> Dict[str, int]:
+        """
+        Loads neurons from the historical difficulty file
+
+        Args:
+            hdifficultylocation (str, optional): The location of the metagraph file. Defaults to '~/.bittensor/difficulty_historical.json'.
+        
+        Raises:
+            FastSyncFileException: If the difficulty file could not be read
+            FastSyncFormatException: If the difficulty file is not in the correct format
+        
+        Returns:
+            Dict[str(int), int]:
+                a Dict of blockNumber to difficulty
+        """
+        try:
+            with open(os.path.join(os.path.expanduser(difficulty_location))) as f:
+                file_data = f.read()
+            return cls._load_historical_difficulty_file_data(file_data)
+        except FileNotFoundError:
+            raise FastSyncFileException('{} not found. Try calling sync_and_save_historical_difficulty() first.', difficulty_location)
+        except OSError:
+            raise FastSyncFileException('Could not read {}', difficulty_location)
 
     @classmethod
     def load_historical_neurons(cls, metagraph_location: Optional[str] = '~/.bittensor/metagraph_historical.json') -> Dict[str, Dict[str, SimpleNamespace]]:

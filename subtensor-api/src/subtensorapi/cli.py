@@ -49,6 +49,16 @@ def run_sync_and_save_historical(
     # get historical neuron data
     fast_sync.sync_and_save_historical(block_numbers, uids, filename)
 
+def run_sync_and_save_historical_difficulty(
+    filename: str, block_numbers: List[Union[int, str]], endpoint_url: str
+) -> None:
+    # check if fast sync is available
+    FastSync.verify_fast_sync_support()
+    # try to fast sync
+    fast_sync: FastSync = FastSync(endpoint_url)
+    # get historical neuron data
+    fast_sync.sync_and_save_historical_difficulty(block_numbers, filename)
+
 def add_args_sync_and_save(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "-f",
@@ -115,6 +125,37 @@ def sync_and_save_historical(parsed_args: argparse.Namespace) -> None:
         parsed_args.filename,
         parsed_args.block_numbers,
         parsed_args.uids,
+        parsed_args.endpoint_url,
+    )
+
+def add_args_sync_and_save_historical_difficulty(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "-f",
+        "--filename",
+        type=str,
+        default="~/.bittensor/difficulty_historical.json",
+        help="Filename to save difficulty data to",
+    )
+    parser.add_argument(
+        "-b",
+        "--block_numbers",
+        type=str,
+        nargs="+",
+        default=["latest"],
+        help="Block number(s) to sync difficulty at",
+    )
+    parser.add_argument(
+        "-u",
+        "--endpoint_url",
+        type=str,
+        default="wss://AtreusLB-2c6154f73e6429a9.elb.us-east-2.amazonaws.com:9944",
+        help="Endpoint url to connect to",
+    )
+
+def sync_and_save_historical_difficulty(parsed_args: argparse.Namespace) -> None:
+    run_sync_and_save_historical_difficulty(
+        parsed_args.filename,
+        parsed_args.block_numbers,
         parsed_args.endpoint_url,
     )
 

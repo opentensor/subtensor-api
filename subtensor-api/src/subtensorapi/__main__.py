@@ -28,6 +28,13 @@ def main(args: Optional[List[str]] = sys.argv[1:]) -> None:
         sync_and_save_historical
     )
 
+    sync_and_save_historical_difficulty = cmd_parsers.add_parser(
+        "sync_and_save_historical_difficulty"
+    )
+    cli.add_args_sync_and_save_historical_difficulty(
+        sync_and_save_historical_difficulty
+    )
+
     parsed_args = parser.parse_args(args)
 
     if parsed_args.command == "sync_and_save":
@@ -36,6 +43,8 @@ def main(args: Optional[List[str]] = sys.argv[1:]) -> None:
         cli.blockAtRegistration_for_all_and_save(parsed_args)
     elif parsed_args.command == "sync_and_save_historical":
         cli.sync_and_save_historical(parsed_args)
+    elif parsed_args.command == "sync_and_save_historical_difficulty":
+        cli.sync_and_save_historical_difficulty(parsed_args)
     else:
         parser.print_help()
 
